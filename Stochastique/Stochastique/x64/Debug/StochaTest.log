@@ -1,0 +1,5 @@
+﻿  stdafx.cpp
+  StochaTest.cpp
+c:\users\travail\source\repos\stochatest\stochatest\stochatest.cpp(10): warning C4101: 'ilo' : variable locale non référencée
+  StochaTest.vcxproj -> C:\Users\Travail\source\repos\StochaTest\x64\Debug\StochaTest.exe
+  StochaTest.vcxproj -> C:\Users\Travail\source\repos\StochaTest\x64\Debug\StochaTest.pdb (Full PDB)
