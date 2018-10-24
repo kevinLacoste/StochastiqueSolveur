@@ -1,2 +1,4 @@
-﻿  Stochastique.vcxproj -> C:\Users\Travail\Github\StochastiqueSolveur\Stochastique\x64\Debug\Stochastique.exe
+﻿  Stochastique.cpp
+c:\users\travail\github\stochastiquesolveur\stochastique\stochastique\stochastique.cpp(13): warning C4101: 'ilo' : variable locale non référencée
+  Stochastique.vcxproj -> C:\Users\Travail\Github\StochastiqueSolveur\Stochastique\x64\Debug\Stochastique.exe
   Stochastique.vcxproj -> C:\Users\Travail\Github\StochastiqueSolveur\Stochastique\x64\Debug\Stochastique.pdb (Full PDB)
