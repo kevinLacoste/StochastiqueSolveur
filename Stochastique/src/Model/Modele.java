@@ -39,7 +39,8 @@ public class Modele {
 		if(villeDepart >= 0  && villeDepart < nbVilles &&
 		   villeArrivee >= 0 && villeArrivee < nbVilles)
 		{
-			return coutsArcs.get(villeDepart).get(villeArrivee);
+			Double costToReturn = coutsArcs.get(villeDepart).get(villeArrivee);
+			return (costToReturn != null ? costToReturn : 0.f);
 		}
 		else return 0.f;
 	}
@@ -49,7 +50,8 @@ public class Modele {
 		if(villeDepart >= 0  && villeDepart < nbVilles &&
 		   villeArrivee >= 0 && villeArrivee < nbVilles)
 		{
-			return variances.get(villeDepart).get(villeArrivee);
+			Double costToReturn = variances.get(villeDepart).get(villeArrivee);
+			return (costToReturn != null ? costToReturn : 0.f);
 		}
 		else return 0.f;
 	}
