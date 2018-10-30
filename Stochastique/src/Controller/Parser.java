@@ -4,14 +4,16 @@ import Model.Modele;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 import org.xml.sax.helpers.DefaultHandler;
-
 import java.awt.geom.Point2D;
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Scanner;
+import java.lang.Math;
 
 
 public class Parser {
@@ -35,6 +37,15 @@ public class Parser {
 	
 	private Modele loadXML(String filepath)
 	{
+		int nbVilles;
+		int thirdPoint;
+		ArrayList<HashMap<Integer, Double>> coutsArcs;
+		HashMap<Integer, Point2D> positions;
+		ArrayList<Point2D> positionsArray;
+		double x=0, y=0, x1, x2, x3, y1, y2, y3;
+		double c1, c2, c3;
+		double l1, l2;
+		
 		try {
 			SAXParserFactory factory = SAXParserFactory.newInstance();
 			SAXParser saxParser = factory.newSAXParser();
@@ -42,7 +53,83 @@ public class Parser {
 			XMLHandler xmlHandler = (XMLHandler)handler;
 			
 			saxParser.parse(filepath, handler);
-			return new Modele(xmlHandler.getNbVilles(), xmlHandler.getCoutsArcs(), null, null);
+			nbVilles = xmlHandler.getNbVilles();
+			coutsArcs = xmlHandler.getCoutsArcs();
+			positions = new HashMap<Integer, Point2D>();
+			double dist = 0;
+			
+			//Calculate positions
+			positions.put(0, new Point2D.Double(0,0));
+			positions.put(1, new Point2D.Double(coutsArcs.get(0).get(1), 0));
+			for(thirdPoint=2; thirdPoint<nbVilles && y==0; thirdPoint++)
+			{
+				x = (Math.pow(coutsArcs.get(0).get(1), 2) + 
+					 Math.pow(coutsArcs.get(thirdPoint).get(0), 2) -
+					 Math.pow(coutsArcs.get(thirdPoint).get(1), 2)) / (2*coutsArcs.get(0).get(1));
+				y = Math.sqrt(Math.pow(coutsArcs.get(thirdPoint).get(0), 2) - Math.pow(x, 2));
+			}
+			thirdPoint--;
+			
+			positions.put(thirdPoint, new Point2D.Double(x,y));
+			
+			x1 = positions.get(0).getX();
+			x2 = positions.get(1).getX();
+			x3 = positions.get(thirdPoint).getX();
+			y1 = positions.get(0).getY();
+			y2 = positions.get(1).getY();
+			y3 = positions.get(thirdPoint).getY();
+			
+			c1 = (Math.pow(x2, 2) - Math.pow(x1, 2) +
+				  Math.pow(y2, 2) - Math.pow(y1, 2))/2;
+			
+			c2 = (Math.pow(x3, 2) - Math.pow(x2, 2) +
+				  Math.pow(y3, 2) - Math.pow(y2, 2))/2;
+			
+			c3 = 1 + (x3 - x2)*(y2 - y1)/(y3 - y2);
+			
+			for(int i=2;i<nbVilles;i++)
+			{
+				if(i != thirdPoint)
+				{
+					l1 = (Math.pow(coutsArcs.get(i).get(0), 2) -
+						  Math.pow(coutsArcs.get(i).get(1), 2))/2;
+					l2 = (Math.pow(coutsArcs.get(i).get(1), 2) -
+						  Math.pow(coutsArcs.get(i).get(thirdPoint), 2))/2;
+					
+					x = ((c1+l1) - (c2+l2)*((y2-y1)/(y3-y2)))/((x2-x1)*c3);
+					y = ((c2+l2) - x*(x3-x2))/(y3-y2);
+					positions.put(i, new Point2D.Double(x,y));
+				}
+			}
+			
+			//TODO Remove 
+			/* CODE DE TEST POUR LES LONGUEURS CALCULEES
+			BufferedWriter bw = new BufferedWriter(new FileWriter("testFile.txt"));
+			boolean b = true;
+			bw.write( (x1) + ", " + (x2) + ", " + (x3) + ", " + (y1) + ", " + (y2) + ", " + (y3) + "\n");
+			for(int i=0;i<nbVilles;i++)
+			{
+				for(int j=0; j<nbVilles; j++)
+				{
+					if(i!=j)
+					{
+						dist = positions.get(i).distance(positions.get(j));
+						b = Math.abs(dist-coutsArcs.get(i).get(j)) < 0.1;
+						if(b) bw.write("Ville " + i + " vers " + j + " : Success, delta = " + Math.abs(dist-coutsArcs.get(i).get(j)) + "\n");
+						else bw.write("Ville " + i + " vers " + j + " : Fail, delta = " + Math.abs(dist-coutsArcs.get(i).get(j)) + "\n");
+					}
+				}
+			}
+			bw.close();
+			if(b)System.out.println("Success");
+			else System.out.println("Fail"); */
+			
+			positionsArray = new ArrayList<Point2D>();
+			for(int i=0; i<nbVilles; i++)
+			{
+				positionsArray.add(positions.get(i));
+			}
+			return new Modele(nbVilles, coutsArcs, null, positionsArray);
 		}
 		catch (Exception e) {
 			e.printStackTrace();
@@ -73,7 +160,7 @@ public class Parser {
             coutsArcs = new ArrayList<HashMap<Integer, Double>>();
             
             //Premiere etape : nb de villes du probleme et positions
-            while(!buffer.equals("EOF"))
+            while(!buffer.equals("EOF") && buffer != null)
             {
             	if(!coords) {
             		if(buffer.contains("DIMENSION")) {
