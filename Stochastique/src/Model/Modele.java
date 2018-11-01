@@ -75,6 +75,10 @@ public class Modele {
 		else return null;
 	}
 	
+	public ArrayList<HashMap<Integer, Double>> getCoutsArcs() {
+		return coutsArcs;
+	}
+	
 	private int nbVilles;
 	private ArrayList<HashMap<Integer, Double>> coutsArcs;
 	private ArrayList<HashMap<Integer, Double>> variances;
