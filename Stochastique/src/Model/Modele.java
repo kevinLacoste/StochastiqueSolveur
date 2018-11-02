@@ -5,12 +5,13 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 public class Modele {
-	public Modele(int nbVilles, ArrayList<HashMap<Integer, Double>> coutsArcs, ArrayList<HashMap<Integer, Double>> variances, ArrayList<Point2D> positions)
+	public Modele(int nbVilles, ArrayList<HashMap<Integer, Double>> coutsArcs, ArrayList<Point2D> positions)
 	{
 		this.nbVilles = nbVilles;
 		this.coutsArcs = new ArrayList<HashMap<Integer, Double>>();
-		this.variances = new ArrayList<HashMap<Integer, Double>>();
 		this.positions = new ArrayList<Point2D>();
+		this.variances = new ArrayList<HashMap<Integer, Double>>();
+		HashMap<Integer, Double> actualVariance;
 		
 		if(coutsArcs != null)
 		{
@@ -36,6 +37,17 @@ public class Modele {
 			}
 		}
 		
+		for(int i=0; i<coutsArcs.size(); i++) {
+			HashMap<Integer, Double> tab = coutsArcs.get(i);
+			variances.add(new HashMap<Integer, Double>());
+			actualVariance = variances.get(variances.size()-1);
+			
+			for(int j=0; j<nbVilles; j++) {
+				if(tab.containsKey(j)) {
+					actualVariance.put(j, tab.get(j)*factCov);
+				}
+			}
+		}
 		//TODO else exception
 	}
 	
@@ -76,11 +88,24 @@ public class Modele {
 	}
 	
 	public ArrayList<HashMap<Integer, Double>> getCoutsArcs() {
-		return coutsArcs;
+		ArrayList<HashMap<Integer, Double>> toReturn = new ArrayList<HashMap<Integer, Double>>();
+		for(HashMap<Integer, Double> cout : this.coutsArcs) {
+			toReturn.add(new HashMap<Integer, Double>(cout));
+		}
+		return toReturn;
+	}
+	
+	public ArrayList<HashMap<Integer, Double>> getVariances() {
+		ArrayList<HashMap<Integer, Double>> toReturn = new ArrayList<HashMap<Integer, Double>>();
+		for(HashMap<Integer, Double> variance : this.variances) {
+			toReturn.add(new HashMap<Integer, Double>(variance));
+		}
+		return toReturn;
 	}
 	
 	private int nbVilles;
 	private ArrayList<HashMap<Integer, Double>> coutsArcs;
 	private ArrayList<HashMap<Integer, Double>> variances;
 	private ArrayList<Point2D> positions;
+	private double factCov = 0.2d;
 }

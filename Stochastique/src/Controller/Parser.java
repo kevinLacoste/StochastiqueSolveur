@@ -129,7 +129,7 @@ public class Parser {
 			{
 				positionsArray.add(positions.get(i));
 			}
-			return new Modele(nbVilles, coutsArcs, null, positionsArray);
+			return new Modele(nbVilles, coutsArcs, positionsArray);
 		}
 		catch (Exception e) {
 			e.printStackTrace();
@@ -224,7 +224,7 @@ public class Parser {
             	}
             }
             
-            return new Modele(nbVilles, coutsArcs, null, positions);
+            return new Modele(nbVilles, coutsArcs, positions);
         }
         catch(IOException e)
         {

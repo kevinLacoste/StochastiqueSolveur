@@ -1,4 +1,6 @@
 import Controller.Parser;
+import CplexPack.VDCSolveur;
+import Exceptions.VDCException;
 import Model.Modele;
 
 public class Stochastique {
@@ -25,9 +27,15 @@ public class Stochastique {
 			}
 		}
 		
-		/*VDCSolveur solv = new VDCSolveur();
-		solv.initModele(m);
-		solv.optimize();*/
+		/*try {
+			VDCSolveur solv = new VDCSolveur();
+			solv.initModele(m);
+			solv.optimizeDeter();
+			//solv.optimizeStocha(0);
+		}
+		catch(VDCException e) {
+			e.printStackTrace();
+		}*/
 		
 	}
 }

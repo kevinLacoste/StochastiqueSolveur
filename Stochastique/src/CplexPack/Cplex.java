@@ -31,6 +31,37 @@ public class Cplex extends Solveur
 	}
 	
 	@Override
+	public void definePL(int vectSolDimension, dataType dt, ArrayList<HashMap<Integer, Double>> matContraintes,
+			ArrayList<Double> secondMembre, ArrayList<inequalitySign> inequalitySigns, ArrayList<Double> fctObj) {
+		super.definePL(vectSolDimension, dt, matContraintes, secondMembre, inequalitySigns, fctObj);
+		try {
+			modele = new IloCplex();
+			modele.setOut(null);	//Evite d'avoir plein de messages de cplex dans la console
+			isInit = false;
+			isSolved = false;
+		}
+		catch (IloException e) 
+		{
+			e.printStackTrace();
+		}
+	}
+	
+	@Override
+	public void definePL(PL probleme) {
+		super.definePL(probleme);
+		try {
+			modele = new IloCplex();
+			modele.setOut(null);	//Evite d'avoir plein de messages de cplex dans la console
+			isInit = false;
+			isSolved = false;
+		}
+		catch (IloException e) 
+		{
+			e.printStackTrace();
+		}
+	}
+	
+	@Override
 	public void initPL()
 	{
 		if(modele != null) try {
@@ -94,12 +125,6 @@ public class Cplex extends Solveur
 	@Override
 	public void optimize() 
 	{
-		try{
-			modele.exportModel("modele1.lp");
-		}
-		catch(Exception e) {
-			
-		}
 		if(isInit) try
 		{
 			isSolved = modele.solve();
@@ -148,22 +173,6 @@ public class Cplex extends Solveur
 			e.printStackTrace();
 		}
 	}
-	
-	/*for (int i = 0;i < nbV;i++)
-	{
-		for (int j = 0;j < nbV;j++)
-		{
-			if (visited.contains(i) && visited.contains(j))
-			{
-				expr.addTerm(1.0, x[i][j]);
-			}
-		}
-	}
-	modele.addLe(expr, visited.size()-2);
-} 
-catch (IloException e) {
-	e.printStackTrace();
-}*/
 	
 	@Override
 	public void setMinimize(boolean value) 

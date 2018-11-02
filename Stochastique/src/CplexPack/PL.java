@@ -177,4 +177,26 @@ public class PL {
 		}
 		return d;
 	}
+	
+	public double getFctValue()
+	{
+		double toReturn = 0.d;
+		for(int i=0; i<this.vectSolDimension;i++)
+		{
+			if(this.dt == dataType.bool) {
+				if(Math.abs(this.vectSolution.get(i)-1) < 0.01)
+					toReturn += this.fctObj.get(i);
+			}
+			
+			else if (this.dt == dataType.integer) {
+				toReturn += this.fctObj.get(i) * Math.round(this.vectSolution.get(i));
+			}
+			
+			else if (this.dt == dataType.integer) {
+				toReturn += this.fctObj.get(i) * this.vectSolution.get(i);
+			}
+		}
+		
+		return toReturn;
+	}
 }

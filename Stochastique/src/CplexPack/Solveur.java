@@ -18,7 +18,8 @@ public abstract class Solveur
 	public void definePL(int vectSolDimension, dataType dt, ArrayList<HashMap<Integer, Double>> matContraintes, 
 						 ArrayList<Double> secondMembre, ArrayList<inequalitySign> inequalitySigns, ArrayList<Double> fctObj)
 	{
-		this.probleme = new PL(vectSolDimension, dt, matContraintes, secondMembre, inequalitySigns, fctObj);
+		PL p = new PL(vectSolDimension, dt, matContraintes, secondMembre, inequalitySigns, fctObj);
+		definePL(p);
 	}
 	
 	public void definePL(PL probleme)

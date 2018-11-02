@@ -3,13 +3,21 @@ package CplexPack;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
+import org.apache.commons.math3.distribution.NormalDistribution;
 
+import Exceptions.NotInitalizedException;
 import Model.Modele;
 
 public class VDCSolveur {
 	
 	private Solveur solv;
-	private PL probleme;
+	private PL problemeStocha;
+	private PL problemeDeter;
+	private boolean isOptimised;
+	private boolean isInit;
+	private NormalDistribution normalDist;
+	private ArrayList<Double> moyennes;
+	private ArrayList<HashMap<Integer, Double>> variances;
 	int nbVilles;
 	
 	public VDCSolveur()
@@ -17,6 +25,9 @@ public class VDCSolveur {
 		//Ici, le solveur appele est Cplex, mais si besoin il est possible d'appeler un solveur
 		//different implémenté dans un classe heritant de Solveur et respectant sa structure.
 		solv = new Cplex();
+		normalDist = new NormalDistribution();
+		isOptimised = false;
+		isInit = false;
 	}
 	
 	public void initModele(Modele m)
@@ -97,52 +108,71 @@ public class VDCSolveur {
 			inequalitySigns.add(inequalitySign.Eq);
 		}
 		
-		this.probleme = new PL(vectSolDimension, dataType.bool, matContraintes, secondMembre, inequalitySigns, fctObj);
-		this.solv.definePL(probleme);
-		//this.solv.setMinimize(true);
-		for(int i=0; i<nbVilles;i++)
-		{
-			for(int j=0; j<nbVilles;j++)
-			{
-				System.out.print((int)(double)fctObj.get(i*nbVilles+j) + " ");
-			}
-			System.out.print("\n");
-		}
+		//Creation des donnees necessaires pour le probleme stochastique
+		moyennes = new ArrayList<Double>(fctObj);
+		variances = m.getVariances();
+		
+		this.problemeDeter = new PL(vectSolDimension, dataType.bool, matContraintes, secondMembre, inequalitySigns, fctObj);
+		this.problemeStocha = new PL(vectSolDimension, dataType.bool, matContraintes, secondMembre, inequalitySigns, fctObj);
+		isInit = true;
 	}
 	
-	public void optimize()
+	public void optimizeDeter() throws NotInitalizedException
 	{
 		optimize(0);
 	}
 	
-	public void optimize(int nbSec)
+	public void optimizeDeter(long nbMillisec) throws NotInitalizedException
 	{
-		ArrayList<Double> solution = new ArrayList<Double>();
-		ArrayList<ArrayList<Integer>> sousTours = new ArrayList<ArrayList<Integer>>();
-		HashMap<Integer, Double> newContrainst;
-		long end = -1;
+		optimize(nbMillisec);
+	}
+	
+	public void optimizeStocha(double alpha) throws NotInitalizedException
+	{
+		double Z;	// Valeur optimiale obtenue pour le probleme
+		double quantileAlpha;
+		HashMap<Integer, Double> constraint = new HashMap<Integer, Double>();
 		
+		System.out.println("Resolution stochastique");
+		optimize(0); //Resolution optimale deterministe
+		Z = this.problemeDeter.getFctValue() * 1.3d;
+		
+		//Creation de la nouvelle contrainte (on suppose que les facteurs de covariance sont nuls)
+		quantileAlpha = normalDist.inverseCumulativeProbability(alpha);
+		for(int i=0; i<nbVilles; i++) {
+			for(int j=0; j<nbVilles; j++) {
+				if(this.variances.get(i).get(j) != null) {
+					constraint.put(i*nbVilles+j, moyennes.get(i*nbVilles + j) + quantileAlpha*variances.get(i).get(j));
+				}
+			}
+		}
+		problemeStocha.addContrainte(constraint, Z, inequalitySign.LowEq);
+		solv.definePL(problemeStocha);
 		solv.initPL();
 		solv.setMinimize(true);
 		
-		int it = 0;
-		
-		if(nbSec > 0) 
-			end = System.currentTimeMillis() + nbSec*1000;
+		ArrayList<Double> solution = new ArrayList<Double>();
+		ArrayList<ArrayList<Integer>> sousTours = new ArrayList<ArrayList<Integer>>();
+		HashMap<Integer, Double> newContrainst;
+		int it = 1;
 		
 		while(sousTours != null)
 		{
+			System.out.println("Iteration n" + it);
 			solv.optimize();
 			
 			solution = solv.getSolution();
+			if(solution == null) {
+				System.out.println("Pas de solution !");
+				return;
+			}
 			sousTours = possedeSousTour(solution);
 			
-			if(sousTours != null && ((end == -1) || (System.currentTimeMillis() < end))) //Presence de sous tours et timer en lice
+			if(sousTours != null) //Presence de sous tours et timer en lice
 			{ 
 			    for(ArrayList<Integer> tour : sousTours)
 			    {
-			    	System.out.println(tour.toString());
-					newContrainst = new HashMap<Integer, Double>();
+			    	newContrainst = new HashMap<Integer, Double>();
 					for(int i=0; i<nbVilles; i++)
 					{
 						for(int j=0; j<nbVilles; j++)
@@ -155,16 +185,9 @@ public class VDCSolveur {
 			    }
 			}
 			it++;
-			
-			if(end != -1 && System.currentTimeMillis() >= end && sousTours != null)
-			{
-				solution = breakSousTours(sousTours);
-				probleme.setSolution(solution);
-				break;
-			}
-			System.out.println("Iteration n" + it);
-		} 
+		}
 		
+		solution = this.problemeStocha.getSolution();
 		int actualCity = 0;
 		System.out.print("0->");
 		do
@@ -181,21 +204,94 @@ public class VDCSolveur {
 		} while(actualCity != 0);
 		System.out.print("\n");
 		
-		double solValue = solv.getFctValue();
+		double solValue = problemeStocha.getFctValue();
 		System.out.println("Solution value : " + solValue);
-		
-		/*solv.getCplex().setMinimize(true);
-		solv.getCplex().optimize();
-		boolean st = solv.possedeSousTour();
-		int iteration = 2;
-		while (st == true)
+		System.out.println();
+	}
+	
+	private void optimize(long nbMillisec) throws NotInitalizedException
+	{
+		if(isInit)
 		{
-			System.out.println("Iteration : " + iteration);
-			solv.getCplex().addContrainte(solv.getVisited());
-			solv.getCplex().optimize();
-			st = solv.possedeSousTour();
-			iteration++;
-		}*/
+			this.solv.definePL(problemeDeter);
+			solv.initPL();
+			solv.setMinimize(true);
+			
+			ArrayList<Double> solution = new ArrayList<Double>();
+			ArrayList<ArrayList<Integer>> sousTours = new ArrayList<ArrayList<Integer>>();
+			HashMap<Integer, Double> newContrainst;
+			long end = -1;
+			
+			int it = 1;
+			
+			if(nbMillisec > 0)System.out.println("Temps de travail : " + nbMillisec + " millisecondes");
+			else System.out.println("Temps de travail : pas de limites");
+			
+			if(!isOptimised)
+			{
+				if(nbMillisec > 0) 
+					end = System.currentTimeMillis() + nbMillisec;
+				
+				while(sousTours != null)
+				{
+					System.out.println("Iteration n" + it);
+					solv.optimize();
+					
+					solution = solv.getSolution();
+					sousTours = possedeSousTour(solution);
+					
+					if(sousTours != null && ((end == -1) || (System.currentTimeMillis() < end))) //Presence de sous tours et timer en lice
+					{ 
+						for(ArrayList<Integer> tour : sousTours)
+					    {
+							System.out.println(tour.toString());
+							newContrainst = new HashMap<Integer, Double>();
+							for(int i=0; i<nbVilles; i++)
+							{
+								for(int j=0; j<nbVilles; j++)
+								{
+									if(tour.contains(i) && tour.contains(j) && i!=j)
+										newContrainst.put(i*nbVilles+j, 1.d);
+								}
+							}
+							solv.addContrainte(newContrainst, tour.size()-2, inequalitySign.LowEq);
+					    }
+					}
+					it++;
+					
+					if(end != -1 && System.currentTimeMillis() >= end && sousTours != null)
+					{
+						breakSousTours(sousTours);
+						break;
+					}
+				} 
+				
+				if(sousTours == null)isOptimised = true;
+			}
+			
+			solution = this.problemeDeter.getSolution();
+			int actualCity = 0;
+			System.out.print("0->");
+			do
+			{
+				for(int i=0; i<nbVilles;i++)
+				{
+					if(Math.abs(solution.get(actualCity*nbVilles+i) - 1) < 0.01d) {
+						if(i != 0) System.out.print(i + "->");
+						else System.out.print(i);
+						actualCity = i;
+						break;
+					}
+				}
+			} while(actualCity != 0);
+			System.out.print("\n");
+			
+			double solValue = problemeDeter.getFctValue();
+			System.out.println("Solution value : " + solValue);
+			System.out.println();
+		}
+		
+		else throw new NotInitalizedException("Le probleme a resoudre n'a pas ete defini");
 	}
 
 	public ArrayList<ArrayList<Integer>> possedeSousTour(ArrayList<Double> solution)
@@ -258,8 +354,8 @@ public class VDCSolveur {
 		else return null;
 	}
 	
-	//Utilise un algorithme glouton
-	private ArrayList<Double> breakSousTours(ArrayList<ArrayList<Integer>> sousTours)
+	//Utilise un algorithme glouton, uniquement pour le probleme deterministe
+	private void breakSousTours(ArrayList<ArrayList<Integer>> sousTours)
 	{
 		int toLink;
 		int toDiscard;
@@ -268,7 +364,7 @@ public class VDCSolveur {
 		double valueTested;
 		LinkedList<Integer> chemin = new LinkedList<Integer>(sousTours.get(0));
 		System.out.println("Value : " + chemin.toString());
-		ArrayList<Double> solution = this.probleme.getSolution();
+		ArrayList<Double> solution = this.problemeDeter.getSolution();
 		
 		toDiscard = chemin.pollLast();
 		sousTours.remove(0);
@@ -279,11 +375,9 @@ public class VDCSolveur {
 			index = 0;
 			if(sousTours.size() > 2)
 			{
-				System.out.println("Start : " + chemin.toString());
-				
-				bestValue = probleme.getFctObjCoeff(toLink*nbVilles + sousTours.get(0).get(0));
+				bestValue = problemeDeter.getFctObjCoeff(toLink*nbVilles + sousTours.get(0).get(0));
 				for(int i=0; i<sousTours.size(); i++) {
-					valueTested = probleme.getFctObjCoeff(toLink*nbVilles + sousTours.get(i).get(0));
+					valueTested = problemeDeter.getFctObjCoeff(toLink*nbVilles + sousTours.get(i).get(0));
 					if(valueTested < bestValue) {
 						index = i;
 						bestValue = valueTested;
@@ -297,21 +391,19 @@ public class VDCSolveur {
 				sousTours.remove(index);
 				
 				toDiscard = chemin.pollLast();
-				
-				System.out.println("End : " + chemin.toString());
 			}
 			
 			else
 			{
 				int scIndex = 1;
 				
-				bestValue = probleme.getFctObjCoeff(toLink*nbVilles + sousTours.get(0).get(0)) + 
-							probleme.getFctObjCoeff(sousTours.get(0).get(sousTours.get(0).size()-2) * nbVilles + sousTours.get(1).get(0)) + 
-							probleme.getFctObjCoeff(sousTours.get(1).get(sousTours.get(1).size()-2) * nbVilles);
+				bestValue = problemeDeter.getFctObjCoeff(toLink*nbVilles + sousTours.get(0).get(0)) + 
+							problemeDeter.getFctObjCoeff(sousTours.get(0).get(sousTours.get(0).size()-2) * nbVilles + sousTours.get(1).get(0)) + 
+							problemeDeter.getFctObjCoeff(sousTours.get(1).get(sousTours.get(1).size()-2) * nbVilles);
 				
-				valueTested= probleme.getFctObjCoeff(toLink*nbVilles + sousTours.get(1).get(0)) + 
-							 probleme.getFctObjCoeff(sousTours.get(1).get(sousTours.get(1).size()-2) * nbVilles + sousTours.get(0).get(0)) + 
-							 probleme.getFctObjCoeff(sousTours.get(0).get(sousTours.get(0).size()-2) * nbVilles);
+				valueTested= problemeDeter.getFctObjCoeff(toLink*nbVilles + sousTours.get(1).get(0)) + 
+							 problemeDeter.getFctObjCoeff(sousTours.get(1).get(sousTours.get(1).size()-2) * nbVilles + sousTours.get(0).get(0)) + 
+							 problemeDeter.getFctObjCoeff(sousTours.get(0).get(sousTours.get(0).size()-2) * nbVilles);
 				
 				if(valueTested < bestValue) {
 					scIndex = 0;
@@ -331,6 +423,6 @@ public class VDCSolveur {
 			}
 		}
 		
-		return solution;
+		this.problemeDeter.setSolution(solution);
 	}
 }
