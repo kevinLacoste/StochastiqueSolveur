@@ -36,7 +36,7 @@ public class Interface
 	private static JFrame frame;
 	private static JPanel panelGlobal;
 	private static JPanel panelLeft;
-	private static JPanel panelRight;
+	private static AffichageVille panelRight;
 	private static JComboBox<String> choixPb;
 	private static JComboBox<String> choixResol;
 	private static JButton buttonData;
@@ -59,9 +59,10 @@ public class Interface
 	{
 
 		frame = new JFrame("Stochastique");
-		frame.setSize(600, 500);
+		frame.setSize(800, 500);
 		frame.setLocationRelativeTo(null);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame.setResizable(false);
 		
 		panelGlobal = new JPanel();
 		panelGlobal.setLayout(new BorderLayout());
@@ -177,8 +178,8 @@ public class Interface
 		layout.setAutoCreateGaps(true);
 		layout.setAutoCreateContainerGaps(true);
 		
-		panelRight = new CityDisplay();
-		panelRight.setBackground(Color.WHITE);
+		panelRight = new AffichageVille();
+		//panelRight.setBackground(Color.WHITE);
 		
 		panelGlobal.add(panelLeft, BorderLayout.WEST);
 		panelGlobal.add(panelRight, BorderLayout.CENTER);
