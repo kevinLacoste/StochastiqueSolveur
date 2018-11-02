@@ -158,7 +158,7 @@ public class PL {
 		else return null; //TODO Exception
 	}
 	
-	public void setSolution(ArrayList<Double> solution)
+	void setSolution(ArrayList<Double> solution)
 	{
 		this.vectSolution = new ArrayList<Double>(solution); //TODO A Ameliorer
 	}

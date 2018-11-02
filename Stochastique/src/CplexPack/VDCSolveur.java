@@ -1,8 +1,8 @@
 package CplexPack;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedList;
 
 import Model.Modele;
 
@@ -112,57 +112,74 @@ public class VDCSolveur {
 	
 	public void optimize()
 	{
-		ArrayList<Double> solution;
-		ArrayList<ArrayList<Integer>> sousTours;
+		optimize(0);
+	}
+	
+	public void optimize(int nbSec)
+	{
+		ArrayList<Double> solution = new ArrayList<Double>();
+		ArrayList<ArrayList<Integer>> sousTours = new ArrayList<ArrayList<Integer>>();
 		HashMap<Integer, Double> newContrainst;
+		long end = -1;
+		
 		solv.initPL();
 		solv.setMinimize(true);
 		
 		int it = 0;
 		
-		do
+		if(nbSec > 0) 
+			end = System.currentTimeMillis() + nbSec*1000;
+		
+		while(sousTours != null)
 		{
 			solv.optimize();
 			
 			solution = solv.getSolution();
 			sousTours = possedeSousTour(solution);
 			
-			if(sousTours != null) //Presence de sous tours
+			if(sousTours != null && ((end == -1) || (System.currentTimeMillis() < end))) //Presence de sous tours et timer en lice
 			{ 
-				    for(ArrayList<Integer> tour : sousTours)
-				    {
-				    	System.out.println(tour.toString());
-						newContrainst = new HashMap<Integer, Double>();
-						for(int i=0; i<nbVilles; i++)
+			    for(ArrayList<Integer> tour : sousTours)
+			    {
+			    	System.out.println(tour.toString());
+					newContrainst = new HashMap<Integer, Double>();
+					for(int i=0; i<nbVilles; i++)
+					{
+						for(int j=0; j<nbVilles; j++)
 						{
-							for(int j=0; j<nbVilles; j++)
-							{
-								if(tour.contains(i) && tour.get(tour.indexOf(i)+1) == j)
-									newContrainst.put(i*nbVilles+j, 1.d);
-							}
+							if(tour.contains(i) && tour.contains(j) && i!=j)
+								newContrainst.put(i*nbVilles+j, 1.d);
 						}
-						solv.addContrainte(newContrainst, tour.size()-2, inequalitySign.LowEq);
-				    }
-				}
+					}
+					solv.addContrainte(newContrainst, tour.size()-2, inequalitySign.LowEq);
+			    }
+			}
 			it++;
+			
+			if(end != -1 && System.currentTimeMillis() >= end && sousTours != null)
+			{
+				solution = breakSousTours(sousTours);
+				probleme.setSolution(solution);
+				break;
+			}
 			System.out.println("Iteration n" + it);
 		} 
-		while(sousTours != null);
 		
-		
-		
-		
-		
-		int c = (int)Math.sqrt(solution.size());
-		
-		for(int i=0; i<c;i++)
+		int actualCity = 0;
+		System.out.print("0->");
+		do
 		{
-			for(int j=0; j<c;j++)
+			for(int i=0; i<nbVilles;i++)
 			{
-				System.out.print((int)(double)solution.get(i*c+j) + " ");
+				if(Math.abs(solution.get(actualCity*nbVilles+i) - 1) < 0.01d) {
+					if(i != 0) System.out.print(i + "->");
+					else System.out.print(i);
+					actualCity = i;
+					break;
+				}
 			}
-			System.out.print("\n");
-		}
+		} while(actualCity != 0);
+		System.out.print("\n");
 		
 		double solValue = solv.getFctValue();
 		System.out.println("Solution value : " + solValue);
@@ -239,5 +256,81 @@ public class VDCSolveur {
 		if(sousTour)
 			return sousTours;
 		else return null;
+	}
+	
+	//Utilise un algorithme glouton
+	private ArrayList<Double> breakSousTours(ArrayList<ArrayList<Integer>> sousTours)
+	{
+		int toLink;
+		int toDiscard;
+		int index = 0;
+		double bestValue;
+		double valueTested;
+		LinkedList<Integer> chemin = new LinkedList<Integer>(sousTours.get(0));
+		System.out.println("Value : " + chemin.toString());
+		ArrayList<Double> solution = this.probleme.getSolution();
+		
+		toDiscard = chemin.pollLast();
+		sousTours.remove(0);
+		
+		while(sousTours != null)
+		{
+			toLink = chemin.getLast();
+			index = 0;
+			if(sousTours.size() > 2)
+			{
+				System.out.println("Start : " + chemin.toString());
+				
+				bestValue = probleme.getFctObjCoeff(toLink*nbVilles + sousTours.get(0).get(0));
+				for(int i=0; i<sousTours.size(); i++) {
+					valueTested = probleme.getFctObjCoeff(toLink*nbVilles + sousTours.get(i).get(0));
+					if(valueTested < bestValue) {
+						index = i;
+						bestValue = valueTested;
+					}
+				}
+				
+				solution.set(toLink*nbVilles + toDiscard, 0.d);
+				solution.set(toLink*nbVilles + sousTours.get(index).get(0),  1.d);
+				
+				chemin.addAll(sousTours.get(index));
+				sousTours.remove(index);
+				
+				toDiscard = chemin.pollLast();
+				
+				System.out.println("End : " + chemin.toString());
+			}
+			
+			else
+			{
+				int scIndex = 1;
+				
+				bestValue = probleme.getFctObjCoeff(toLink*nbVilles + sousTours.get(0).get(0)) + 
+							probleme.getFctObjCoeff(sousTours.get(0).get(sousTours.get(0).size()-2) * nbVilles + sousTours.get(1).get(0)) + 
+							probleme.getFctObjCoeff(sousTours.get(1).get(sousTours.get(1).size()-2) * nbVilles);
+				
+				valueTested= probleme.getFctObjCoeff(toLink*nbVilles + sousTours.get(1).get(0)) + 
+							 probleme.getFctObjCoeff(sousTours.get(1).get(sousTours.get(1).size()-2) * nbVilles + sousTours.get(0).get(0)) + 
+							 probleme.getFctObjCoeff(sousTours.get(0).get(sousTours.get(0).size()-2) * nbVilles);
+				
+				if(valueTested < bestValue) {
+					scIndex = 0;
+					index = 1;
+				}
+					
+				// else index = 0 deja fait
+				
+				solution.set(toLink*nbVilles + toDiscard, 0.d);
+				solution.set(toLink*nbVilles + sousTours.get(index).get(0), 1.d);
+				solution.set(sousTours.get(index).get(sousTours.get(index).size()-2) * nbVilles + sousTours.get(index).get(sousTours.get(index).size()-1), 0.d);
+				solution.set(sousTours.get(index).get(sousTours.get(index).size()-2) * nbVilles + sousTours.get(scIndex).get(0), 1.d);
+				solution.set(sousTours.get(scIndex).get(sousTours.get(scIndex).size()-2) * nbVilles + sousTours.get(scIndex).get(sousTours.get(scIndex).size()-1), 0.d);
+				solution.set(sousTours.get(scIndex).get(sousTours.get(scIndex).size()-2) * nbVilles, 1.d);
+				
+				sousTours = null;
+			}
+		}
+		
+		return solution;
 	}
 }

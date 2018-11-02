@@ -8,6 +8,9 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.geom.Point2D;
+import java.io.PrintStream;
+import java.util.ArrayList;
 
 import javax.swing.GroupLayout;
 import javax.swing.JButton;
@@ -16,7 +19,9 @@ import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
+import javax.swing.JTextField;
 
 /**
  * @author Thibaut
@@ -43,6 +48,12 @@ public class Interface
 	private static JTextArea tamponResol;
 	private static JTextArea tamponData;
 	private static JTextArea test;
+	private static PrintStream printOut;
+	
+	public static void setSystemOutBuffer()
+	{
+		
+	}
 	
 	private static void createNewJFrame()
 	{
@@ -166,9 +177,8 @@ public class Interface
 		layout.setAutoCreateGaps(true);
 		layout.setAutoCreateContainerGaps(true);
 		
-		panelRight = new JPanel();
+		panelRight = new CityDisplay();
 		panelRight.setBackground(Color.WHITE);
-		
 		
 		panelGlobal.add(panelLeft, BorderLayout.WEST);
 		panelGlobal.add(panelRight, BorderLayout.CENTER);
@@ -176,12 +186,15 @@ public class Interface
 		frame.setContentPane(panelGlobal);
 		
 		frame.setVisible(true);
+		while(true)
+		{
+			frame.validate();
+		}
 	}
 		
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
 
-		
 		createNewJFrame();
 	}
 

@@ -6,7 +6,7 @@ public class Stochastique {
 	public static void main(String[] args) {
 		
 		Parser p = new Parser();
-		Modele m = p.loadData("a10.xml");
+		Modele m = p.loadData("p654.xml");
 		Modele m2 = p.loadData("a280.tsp");
 		if(m2 != null)
 		{
