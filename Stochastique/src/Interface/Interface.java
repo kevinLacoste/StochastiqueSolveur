@@ -8,9 +8,7 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.geom.Point2D;
 import java.io.PrintStream;
-import java.util.ArrayList;
 
 import javax.swing.GroupLayout;
 import javax.swing.JButton;
@@ -19,9 +17,9 @@ import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
-import javax.swing.JTextField;
+
+import Model.Modele;
 
 /**
  * @author Thibaut
@@ -55,7 +53,7 @@ public class Interface
 		
 	}
 	
-	private static void createNewJFrame()
+	private static void createNewJFrame(Modele m)
 	{
 
 		frame = new JFrame("Stochastique");
@@ -130,13 +128,21 @@ public class Interface
 		
 		tamponData = new JTextArea();
 		tamponData.setEditable(false);
-		tamponData.setMinimumSize(new Dimension(10,100));
+		tamponData.setMinimumSize(new Dimension(10,50));
 		tamponData.setBackground(Color.lightGray);
 		
 		test = new JTextArea();
 		test.setEditable(false);
 		test.setMinimumSize(new Dimension(200,300));
 		test.setBackground(Color.lightGray);
+		test.append("\n");
+		test.append("Temperature : " + "\n");
+		test.append("\n");
+		test.append("Cout total initial : " + "\n");
+		test.append("\n");
+		test.append("Cout total final : " + "\n");
+		test.append("\n");
+		test.append("Temps de resolution : " + "\n");
 		
 		panelLeft = new JPanel();
 		panelLeft.setBackground(Color.lightGray);
@@ -178,7 +184,7 @@ public class Interface
 		layout.setAutoCreateGaps(true);
 		layout.setAutoCreateContainerGaps(true);
 		
-		panelRight = new AffichageVille();
+		panelRight = new AffichageVille(m);
 		//panelRight.setBackground(Color.WHITE);
 		
 		panelGlobal.add(panelLeft, BorderLayout.WEST);
@@ -196,7 +202,7 @@ public class Interface
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
 
-		createNewJFrame();
+		
 	}
 
 }
