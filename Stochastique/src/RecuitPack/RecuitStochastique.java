@@ -1,5 +1,5 @@
 package RecuitPack;
-/*
+
 import Model.Modele;
 
 public class RecuitStochastique extends RecuitDeterministe
@@ -14,9 +14,9 @@ public class RecuitStochastique extends RecuitDeterministe
 	}
 	
 	@Override
-	public double optimize()
+	public double optimize(boolean stocha)
 	{
-		super.optimize();
+		super.optimize(stocha);
 		if (meilleurCout > Z)
 		{
 			overflow = true;
@@ -28,4 +28,4 @@ public class RecuitStochastique extends RecuitDeterministe
 		return meilleurCout;
 	}
 
-}*/
+}
