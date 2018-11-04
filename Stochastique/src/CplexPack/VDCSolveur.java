@@ -13,7 +13,8 @@ public class VDCSolveur {
 	private Solveur solv;
 	private PL problemeStocha;
 	private PL problemeDeter;
-	private boolean isOptimised;
+	private boolean isOptimisedDeter;
+	private boolean isOptimisedStocha;
 	private boolean isInit;
 	private NormalDistribution normalDist;
 	private ArrayList<Double> moyennes;
@@ -26,7 +27,8 @@ public class VDCSolveur {
 		//different implémenté dans un classe heritant de Solveur et respectant sa structure.
 		solv = new Cplex();
 		normalDist = new NormalDistribution();
-		isOptimised = false;
+		isOptimisedDeter = false;
+		isOptimisedStocha = false;
 		isInit = false;
 	}
 	
@@ -117,99 +119,110 @@ public class VDCSolveur {
 		isInit = true;
 	}
 	
-	public void optimizeDeter() throws NotInitalizedException
+	/*public ArrayList<Integer> getSolutionDeter() {
+		
+	}*/
+	
+	public ArrayList<Double> optimizeDeter() throws NotInitalizedException
 	{
-		optimize(0);
+		return optimize(0);
 	}
 	
-	public void optimizeDeter(long nbMillisec) throws NotInitalizedException
+	public ArrayList<Double> optimizeDeter(long nbMillisec) throws NotInitalizedException
 	{
-		optimize(nbMillisec);
+		return optimize(nbMillisec);
 	}
 	
-	public void optimizeStocha(double alpha) throws NotInitalizedException
+	public ArrayList<Double> optimizeStocha(double alpha) throws NotInitalizedException
 	{
-		double Z;	// Valeur optimiale obtenue pour le probleme
-		double quantileAlpha;
-		HashMap<Integer, Double> constraint = new HashMap<Integer, Double>();
-		
-		System.out.println("Resolution stochastique");
-		optimize(0); //Resolution optimale deterministe
-		Z = this.problemeDeter.getFctValue() * 1.3d;
-		
-		//Creation de la nouvelle contrainte (on suppose que les facteurs de covariance sont nuls)
-		quantileAlpha = normalDist.inverseCumulativeProbability(alpha);
-		for(int i=0; i<nbVilles; i++) {
-			for(int j=0; j<nbVilles; j++) {
-				if(this.variances.get(i).get(j) != null) {
-					constraint.put(i*nbVilles+j, moyennes.get(i*nbVilles + j) + quantileAlpha*variances.get(i).get(j));
+		if(isInit) {
+			double Z;	// Valeur optimiale obtenue pour le probleme
+			double quantileAlpha;
+			HashMap<Integer, Double> constraint = new HashMap<Integer, Double>();
+			
+			System.out.println("Resolution stochastique");
+			optimize(0); //Resolution optimale deterministe
+			Z = this.problemeDeter.getFctValue() * 1.3d;
+			
+			//Creation de la nouvelle contrainte (on suppose que les facteurs de covariance sont nuls)
+			quantileAlpha = normalDist.inverseCumulativeProbability(alpha);
+			for(int i=0; i<nbVilles; i++) {
+				for(int j=0; j<nbVilles; j++) {
+					if(this.variances.get(i).get(j) != null) {
+						constraint.put(i*nbVilles+j, moyennes.get(i*nbVilles + j) + quantileAlpha*variances.get(i).get(j));
+					}
 				}
 			}
-		}
-		problemeStocha.addContrainte(constraint, Z, inequalitySign.LowEq);
-		solv.definePL(problemeStocha);
-		solv.initPL();
-		solv.setMinimize(true);
-		
-		ArrayList<Double> solution = new ArrayList<Double>();
-		ArrayList<ArrayList<Integer>> sousTours = new ArrayList<ArrayList<Integer>>();
-		HashMap<Integer, Double> newContrainst;
-		int it = 1;
-		
-		while(sousTours != null)
-		{
-			System.out.println("Iteration n" + it);
-			solv.optimize();
+			problemeStocha.addContrainte(constraint, Z, inequalitySign.LowEq);
+			solv.definePL(problemeStocha);
+			solv.initPL();
+			solv.setMinimize(true);
 			
-			solution = solv.getSolution();
-			if(solution == null) {
-				System.out.println("Pas de solution !");
-				return;
-			}
-			sousTours = possedeSousTour(solution);
+			ArrayList<Double> solution = new ArrayList<Double>();
+			ArrayList<ArrayList<Integer>> sousTours = new ArrayList<ArrayList<Integer>>();
+			HashMap<Integer, Double> newContrainst;
+			int it = 1;
 			
-			if(sousTours != null) //Presence de sous tours et timer en lice
-			{ 
-			    for(ArrayList<Integer> tour : sousTours)
-			    {
-			    	newContrainst = new HashMap<Integer, Double>();
-					for(int i=0; i<nbVilles; i++)
-					{
-						for(int j=0; j<nbVilles; j++)
+			while(sousTours != null)
+			{
+				System.out.println("Iteration n" + it);
+				solv.optimize();
+				
+				solution = solv.getSolution();
+				if(solution == null) {
+					return null;
+				}
+				sousTours = possedeSousTour(solution);
+				
+				if(sousTours != null) //Presence de sous tours et timer en lice
+				{ 
+				    for(ArrayList<Integer> tour : sousTours)
+				    {
+				    	newContrainst = new HashMap<Integer, Double>();
+						for(int i=0; i<nbVilles; i++)
 						{
-							if(tour.contains(i) && tour.contains(j) && i!=j)
-								newContrainst.put(i*nbVilles+j, 1.d);
+							for(int j=0; j<nbVilles; j++)
+							{
+								if(tour.contains(i) && tour.contains(j) && i!=j)
+									newContrainst.put(i*nbVilles+j, 1.d);
+							}
+						}
+						solv.addContrainte(newContrainst, tour.size()-2, inequalitySign.LowEq);
+				    }
+				}
+				it++;
+			}
+			
+			solution = this.problemeStocha.getSolution();
+			if(solution != null) {
+				int actualCity = 0;
+				System.out.print("0->");
+				do
+				{
+					for(int i=0; i<nbVilles;i++)
+					{
+						if(Math.abs(solution.get(actualCity*nbVilles+i) - 1) < 0.01d) {
+							if(i != 0) System.out.print(i + "->");
+							else System.out.print(i);
+							actualCity = i;
+							break;
 						}
 					}
-					solv.addContrainte(newContrainst, tour.size()-2, inequalitySign.LowEq);
-			    }
+				} while(actualCity != 0);
+				System.out.print("\n");
+				
+				double solValue = problemeStocha.getFctValue();
+				System.out.println("Solution value : " + solValue);
+				System.out.println();
 			}
-			it++;
+			
+			isOptimisedStocha = true;
+			return solution;
 		}
-		
-		solution = this.problemeStocha.getSolution();
-		int actualCity = 0;
-		System.out.print("0->");
-		do
-		{
-			for(int i=0; i<nbVilles;i++)
-			{
-				if(Math.abs(solution.get(actualCity*nbVilles+i) - 1) < 0.01d) {
-					if(i != 0) System.out.print(i + "->");
-					else System.out.print(i);
-					actualCity = i;
-					break;
-				}
-			}
-		} while(actualCity != 0);
-		System.out.print("\n");
-		
-		double solValue = problemeStocha.getFctValue();
-		System.out.println("Solution value : " + solValue);
-		System.out.println();
+		else throw new NotInitalizedException("Le probleme a resoudre n'a pas ete defini");
 	}
 	
-	private void optimize(long nbMillisec) throws NotInitalizedException
+	private ArrayList<Double> optimize(long nbMillisec) throws NotInitalizedException
 	{
 		if(isInit)
 		{
@@ -227,7 +240,7 @@ public class VDCSolveur {
 			if(nbMillisec > 0)System.out.println("Temps de travail : " + nbMillisec + " millisecondes");
 			else System.out.println("Temps de travail : pas de limites");
 			
-			if(!isOptimised)
+			if(!isOptimisedDeter)
 			{
 				if(nbMillisec > 0) 
 					end = System.currentTimeMillis() + nbMillisec;
@@ -266,35 +279,39 @@ public class VDCSolveur {
 					}
 				} 
 				
-				if(sousTours == null)isOptimised = true;
+				if(sousTours == null)isOptimisedDeter = true;
 			}
 			
 			solution = this.problemeDeter.getSolution();
-			int actualCity = 0;
-			System.out.print("0->");
-			do
-			{
-				for(int i=0; i<nbVilles;i++)
+			if(solution != null) {
+				int actualCity = 0;
+				System.out.print("0->");
+				do
 				{
-					if(Math.abs(solution.get(actualCity*nbVilles+i) - 1) < 0.01d) {
-						if(i != 0) System.out.print(i + "->");
-						else System.out.print(i);
-						actualCity = i;
-						break;
+					for(int i=0; i<nbVilles;i++)
+					{
+						if(Math.abs(solution.get(actualCity*nbVilles+i) - 1) < 0.01d) {
+							if(i != 0) System.out.print(i + "->");
+							else System.out.print(i);
+							actualCity = i;
+							break;
+						}
 					}
-				}
-			} while(actualCity != 0);
-			System.out.print("\n");
+				} while(actualCity != 0);
+				System.out.print("\n");
+				
+				double solValue = problemeDeter.getFctValue();
+				System.out.println("Solution value : " + solValue);
+				System.out.println();
+			}
 			
-			double solValue = problemeDeter.getFctValue();
-			System.out.println("Solution value : " + solValue);
-			System.out.println();
+			return solution;
 		}
 		
 		else throw new NotInitalizedException("Le probleme a resoudre n'a pas ete defini");
 	}
 
-	public ArrayList<ArrayList<Integer>> possedeSousTour(ArrayList<Double> solution)
+	private ArrayList<ArrayList<Integer>> possedeSousTour(ArrayList<Double> solution)
 	{
 		ArrayList<ArrayList<Integer>> sousTours = new ArrayList<ArrayList<Integer>>();
 		ArrayList<Integer> tour = new ArrayList<Integer>();

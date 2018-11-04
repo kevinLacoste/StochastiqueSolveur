@@ -1,3 +1,5 @@
+import java.io.FileNotFoundException;
+
 import Controller.Parser;
 import CplexPack.VDCSolveur;
 import Exceptions.VDCException;
@@ -7,8 +9,15 @@ public class Stochastique {
 	public static void main(String[] args) {
 		
 		Parser p = new Parser();
-		Modele m = p.loadData("p654.xml");
-		Modele m2 = p.loadData("a280.tsp");
+		Modele m = null, m2 = null;
+		try {
+			m = p.loadData("p654.xml");
+			m2 = p.loadData("a280.tsp");
+		}
+		catch(FileNotFoundException e) {
+			e.printStackTrace();
+		}
+		
 		if(m2 != null)
 		{
 			System.out.println("Arc ville 0 vers 10 : " + m2.getCoutArc(0, 10));

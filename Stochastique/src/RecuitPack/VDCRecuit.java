@@ -8,31 +8,45 @@ public class VDCRecuit {
 	private int nbV;
 	private double meilleurCout;
 	private RecuitSimule recuitSimule;
+	private boolean isInit;
 	
-	public VDCRecuit(Modele m)
+	public VDCRecuit()
+	{
+		isInit = false;
+		meilleurCout = -1;
+	}
+	
+	public void initModele(Modele m)
 	{
 		this.nbV = m.getNbVilles();
 		//Par défaut le recuit déterminste, pour le moment
 		//this.recuitSimule = new RecuitStochastique(m,nbV,nbV*nbV,100);
 		this.recuitSimule = new RecuitDeterministe(m,nbV,nbV*nbV);
+		isInit = true;
 	}
 	
 	public int[] getChemin() 
 	{
-		return chemin;
+		if(isInit)
+			return chemin;
+		else return null;
 	}
 
 	public void updateChemin()
 	{
-		chemin = recuitSimule.getChemin();
+		if(isInit)
+			chemin = recuitSimule.getChemin();
 	}
 
 	public void run()
 	{
-		recuitSimule.initTemperature();
-		recuitSimule.optimize();
-		updateChemin();
-		meilleurCout = recuitSimule.coutTotal();
+		if(isInit)
+		{
+			recuitSimule.initTemperature();
+			recuitSimule.optimize();
+			updateChemin();
+			meilleurCout = recuitSimule.coutTotal();
+		}
 	}
 
 	public double getMeilleurCout() 
@@ -41,7 +55,9 @@ public class VDCRecuit {
 	}
 	
 	public double getRecTemperature() {
-		return recuitSimule.getTemperature();
+		if(isInit)
+			return recuitSimule.getTemperature();
+		else return -1;
 	}
 	
 	

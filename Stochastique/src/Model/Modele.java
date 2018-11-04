@@ -103,6 +103,10 @@ public class Modele {
 		return toReturn;
 	}
 	
+	public ArrayList<Point2D> getPositionsVilles() {
+		return new ArrayList<Point2D>(positions);
+	}
+	
 	private int nbVilles;
 	private ArrayList<HashMap<Integer, Double>> coutsArcs;
 	private ArrayList<HashMap<Integer, Double>> variances;

@@ -6,9 +6,8 @@ import javax.xml.parsers.SAXParserFactory;
 import org.xml.sax.helpers.DefaultHandler;
 import java.awt.geom.Point2D;
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -17,8 +16,19 @@ import java.lang.Math;
 
 
 public class Parser {
-	public Modele loadData(String filepath)
+	public Modele loadData(String filepath) throws FileNotFoundException
 	{
+		try {
+			FileReader fr = new FileReader(filepath);
+			fr.close();
+		}
+		catch (FileNotFoundException e) {
+			throw e;
+		}
+		catch (IOException e) {
+			e.printStackTrace();
+		}
+		
 		if(filepath.endsWith(".xml"))
 		{
 			return loadXML(filepath);
@@ -29,10 +39,7 @@ public class Parser {
 			return loadTSP(filepath);
 		}
 		
-		else //Cas ou le type n'est pas reconnu
-		{
-			return null;
-		}
+		else return null;  //Cas ou le type n'est pas reconnu
 	}
 	
 	private Modele loadXML(String filepath)
@@ -56,7 +63,6 @@ public class Parser {
 			nbVilles = xmlHandler.getNbVilles();
 			coutsArcs = xmlHandler.getCoutsArcs();
 			positions = new HashMap<Integer, Point2D>();
-			double dist = 0;
 			
 			//Calculate positions
 			positions.put(0, new Point2D.Double(0,0));
@@ -101,28 +107,6 @@ public class Parser {
 					positions.put(i, new Point2D.Double(x,y));
 				}
 			}
-			
-			//TODO Remove 
-			/* CODE DE TEST POUR LES LONGUEURS CALCULEES
-			BufferedWriter bw = new BufferedWriter(new FileWriter("testFile.txt"));
-			boolean b = true;
-			bw.write( (x1) + ", " + (x2) + ", " + (x3) + ", " + (y1) + ", " + (y2) + ", " + (y3) + "\n");
-			for(int i=0;i<nbVilles;i++)
-			{
-				for(int j=0; j<nbVilles; j++)
-				{
-					if(i!=j)
-					{
-						dist = positions.get(i).distance(positions.get(j));
-						b = Math.abs(dist-coutsArcs.get(i).get(j)) < 0.1;
-						if(b) bw.write("Ville " + i + " vers " + j + " : Success, delta = " + Math.abs(dist-coutsArcs.get(i).get(j)) + "\n");
-						else bw.write("Ville " + i + " vers " + j + " : Fail, delta = " + Math.abs(dist-coutsArcs.get(i).get(j)) + "\n");
-					}
-				}
-			}
-			bw.close();
-			if(b)System.out.println("Success");
-			else System.out.println("Fail"); */
 			
 			positionsArray = new ArrayList<Point2D>();
 			for(int i=0; i<nbVilles; i++)
@@ -192,6 +176,7 @@ public class Parser {
             		{
             			e.printStackTrace();
             			sc.close();
+            			reader.close();
             			return null;
             		}
             	}
