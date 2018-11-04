@@ -28,6 +28,8 @@ public class CityDisplay extends JPanel {
 	private int ancientPosY;
 	private double zoom;
 	
+	
+	
 	public CityDisplay() {
 		cityPoints = null; // Non initialise
 		ancientPosX = -1;

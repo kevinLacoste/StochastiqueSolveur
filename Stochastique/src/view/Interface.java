@@ -222,30 +222,35 @@ public class Interface
 		
 		buttonData.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent event){
-				JFileChooser chooser = new JFileChooser();//création dun nouveau filechosser
-	            chooser.setApproveButtonText("Choix du fichier..."); //intitulé du bouton
-	            if (chooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION)
-	            {	
-            	    JFrame selectFile = new JFrame("Explorateur de fichier"); //titre
-            	    selectFile.setSize(450,100); //taille
-            	    selectFile.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);//fermeture
-                    JPanel pane = new JPanel();
-                    BorderLayout bord = new BorderLayout();
-                    pane.setLayout(bord);
-                    selectFile.setContentPane(pane);
-                    selectFile.setVisible(true);
-	         
-	                String filepath = chooser.getSelectedFile().getAbsolutePath();
-	                selectFile.setVisible(false);
-	                System.out.println(filepath);
-	                try {
-	                    manager.loadModele(filepath);
-	                    labelSubData2.setText(chooser.getSelectedFile().getAbsolutePath()); 
-	                    //si un fichier est selectionné, récupérer le fichier puis sont path et l'afficher dans le champs de texte
-	                } catch (IncorrectModeleException e) {
-	                	JOptionPane.showMessageDialog(null, e.getMessage(), "Erreur", JOptionPane.ERROR_MESSAGE);
-	                }
-	            }
+				Thread loadThread = new Thread() {
+					public void run() {
+						JFileChooser chooser = new JFileChooser();//création dun nouveau filechosser
+			            chooser.setApproveButtonText("Choix du fichier..."); //intitulé du bouton
+			            if (chooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION)
+			            {	
+		            	    JFrame selectFile = new JFrame("Explorateur de fichier"); //titre
+		            	    selectFile.setSize(450,100); //taille
+		            	    selectFile.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);//fermeture
+		                    JPanel pane = new JPanel();
+		                    BorderLayout bord = new BorderLayout();
+		                    pane.setLayout(bord);
+		                    selectFile.setContentPane(pane);
+		                    selectFile.setVisible(true);
+			         
+			                String filepath = chooser.getSelectedFile().getAbsolutePath();
+			                selectFile.setVisible(false);
+			                System.out.println(filepath);
+			                try {
+			                    manager.loadModele(filepath);
+			                    labelSubData2.setText(chooser.getSelectedFile().getAbsolutePath()); 
+			                    //si un fichier est selectionné, récupérer le fichier puis sont path et l'afficher dans le champs de texte
+			                } catch (IncorrectModeleException e) {
+			                	JOptionPane.showMessageDialog(null, e.getMessage(), "Erreur", JOptionPane.ERROR_MESSAGE);
+			                }
+			            }
+					};
+				};
+				loadThread.start();
 			}
 		});
 		
@@ -257,28 +262,34 @@ public class Interface
 	
 		buttonResol.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent event){
-				try {
-					ArrayList<Integer> arcs = null;
-					if(slv == solveur.solvLin) {
-						if(dt == deterStocha.deterministe)
-							arcs = manager.optimizeSolvDeter();
-						else
-							arcs = manager.optimizeSolvStocha(alpha);
+				Thread workThread = new Thread() {
+					@Override
+					public void run() {
+						try {
+							ArrayList<Integer> arcs = null;
+							if(slv == solveur.solvLin) {
+								if(dt == deterStocha.deterministe)
+									arcs = manager.optimizeSolvDeter();
+								else
+									arcs = manager.optimizeSolvStocha(alpha);
+							}
+							else if(slv == solveur.recuit) {
+								if(dt == deterStocha.deterministe)
+									arcs = manager.optimizeRecuitDeter();
+							}
+							
+							panelRight.displaySolution(arcs);
+							panelRight.repaint();
+						}
+						catch (NotInitalizedException e) {
+							JOptionPane.showMessageDialog(null, e.getMessage(), "Erreur", JOptionPane.ERROR_MESSAGE);
+						}
+						catch (NoSolutionException e) {
+							JOptionPane.showMessageDialog(null, e.getMessage(), "Erreur", JOptionPane.ERROR_MESSAGE);
+						}
 					}
-					else if(slv == solveur.recuit) {
-						if(dt == deterStocha.deterministe)
-							arcs = manager.optimizeRecuitDeter();
-					}
-					
-					panelRight.displaySolution(arcs);
-					panelRight.repaint();
-				}
-				catch (NotInitalizedException e) {
-					JOptionPane.showMessageDialog(null, e.getMessage(), "Erreur", JOptionPane.ERROR_MESSAGE);
-				}
-				catch (NoSolutionException e) {
-					JOptionPane.showMessageDialog(null, e.getMessage(), "Erreur", JOptionPane.ERROR_MESSAGE);
-				}
+				};
+				workThread.start();
 			}
 		});
 		
