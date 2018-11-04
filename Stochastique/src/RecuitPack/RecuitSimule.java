@@ -14,7 +14,7 @@ public abstract class RecuitSimule {
 	abstract public boolean mvtPossible();
 	abstract public void selectMvt();
 	abstract public void refuseMvt();
-	abstract public void initTemperature();
+	abstract public void initTemperature(boolean alea);
 	abstract public double coutTotal();
 	
 	abstract public int[] getChemin();

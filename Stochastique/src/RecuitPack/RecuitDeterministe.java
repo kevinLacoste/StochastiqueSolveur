@@ -2,6 +2,8 @@ package RecuitPack;
 
 import java.util.ArrayList;
 
+import org.apache.commons.math3.distribution.NormalDistribution;
+
 import Model.Modele;
 
 public class RecuitDeterministe extends RecuitSimule {
@@ -98,13 +100,18 @@ public class RecuitDeterministe extends RecuitSimule {
 	}
 
 	@Override
-	public void initTemperature() 
+	public void initTemperature(boolean alea) 
 	{
 		int nbAcceptations;
 		boolean mvtPossible;
 		double coutActuel;
 		double delta;
 		double proba;
+		
+		if (alea)
+		{
+			appliquerVariance();
+		}
 		
 		temperature = nbV;
 		double tauxAcceptable = 0.80;
@@ -286,6 +293,24 @@ public class RecuitDeterministe extends RecuitSimule {
 	@Override
 	public int[] getChemin() {
 		return chemin;
+	}
+	
+	private void appliquerVariance()
+	{
+		for (int i = 0;i < this.nbV;i++)
+		{
+			System.out.println("Avant : " + this.modele.getCoutArc(i,0));
+			for (int j = 0;j < this.nbV;j++)
+			{
+				if (i != j && this.modele.getVarianceArc(i,j) > 0)
+				{
+					NormalDistribution n = new NormalDistribution(this.modele.getCoutArc(i,j),Math.sqrt(this.modele.getVarianceArc(i,j)));
+					this.modele.setCoutArc(i,j,n.sample());
+				}
+			}
+			System.out.println("Apres : " + this.modele.getCoutArc(i,0));
+
+		}
 	}
 
 }

@@ -38,11 +38,11 @@ public class VDCRecuit {
 			chemin = recuitSimule.getChemin();
 	}
 
-	public void run()
+	public void run(boolean stocha)
 	{
 		if(isInit)
 		{
-			recuitSimule.initTemperature();
+			recuitSimule.initTemperature(stocha);
 			recuitSimule.optimize();
 			updateChemin();
 			meilleurCout = recuitSimule.coutTotal();

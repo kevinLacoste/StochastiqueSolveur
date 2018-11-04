@@ -107,6 +107,11 @@ public class Modele {
 		return new ArrayList<Point2D>(positions);
 	}
 	
+	public double setCoutArc(int villeDepart, int villeArrivee,double val)
+	{
+		return coutsArcs.get(villeDepart).put(villeArrivee, val);
+	}
+	
 	private int nbVilles;
 	private ArrayList<HashMap<Integer, Double>> coutsArcs;
 	private ArrayList<HashMap<Integer, Double>> variances;

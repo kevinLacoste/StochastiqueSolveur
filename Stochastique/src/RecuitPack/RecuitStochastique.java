@@ -1,5 +1,5 @@
 package RecuitPack;
-
+/*
 import Model.Modele;
 
 public class RecuitStochastique extends RecuitDeterministe
@@ -28,4 +28,4 @@ public class RecuitStochastique extends RecuitDeterministe
 		return meilleurCout;
 	}
 
-}
+}*/

@@ -83,7 +83,25 @@ public class Manager {
 	public ArrayList<Integer> optimizeRecuitDeter() throws NotInitalizedException { //Renvoyer quoi ?
 		if(modeleLoaded != null) {
 			long start = System.currentTimeMillis();
-			vdcRecuit.run();
+			vdcRecuit.run(false);
+			Interface.setRecuitDeterTimeElapsed((double)(System.currentTimeMillis() - start)/1000.d);
+			Interface.setRecuitDeterCoutFinal(vdcRecuit.getMeilleurCout());
+			int chemin[] = vdcRecuit.getChemin();
+			ArrayList<Integer> toReturn = new ArrayList<Integer>();
+			for(int ville : chemin) {
+				toReturn.add(ville);
+			}
+			
+			return toReturn;
+			//return donnee
+		}
+		else throw new NotInitalizedException("Aucun modele n'a ete initialise");
+	}
+	
+	public ArrayList<Integer> optimizeRecuitStocha() throws NotInitalizedException { //Renvoyer quoi ?
+		if(modeleLoaded != null) {
+			long start = System.currentTimeMillis();
+			vdcRecuit.run(true);
 			Interface.setRecuitDeterTimeElapsed((double)(System.currentTimeMillis() - start)/1000.d);
 			Interface.setRecuitDeterCoutFinal(vdcRecuit.getMeilleurCout());
 			int chemin[] = vdcRecuit.getChemin();

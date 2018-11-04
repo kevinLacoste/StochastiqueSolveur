@@ -318,6 +318,8 @@ public class Interface
 							else if(slv == solveur.recuit) {
 								if(dt == deterStocha.deterministe)
 									arcs = manager.optimizeRecuitDeter();
+								else
+									arcs = manager.optimizeRecuitStocha();
 							}
 							
 							panelRight.displaySolution(arcs);
