@@ -599,6 +599,8 @@ public class Interface
 		
 	public static void main(String[] args) {
 		createNewJFrame();
+		long heapMaxSize = Runtime.getRuntime().maxMemory();
+		System.out.println(heapMaxSize);
 	}
 
 }

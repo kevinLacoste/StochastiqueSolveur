@@ -192,7 +192,7 @@ public class PL {
 				toReturn += this.fctObj.get(i) * Math.round(this.vectSolution.get(i));
 			}
 			
-			else if (this.dt == dataType.integer) {
+			else if (this.dt == dataType.longFloat) {
 				toReturn += this.fctObj.get(i) * this.vectSolution.get(i);
 			}
 		}
