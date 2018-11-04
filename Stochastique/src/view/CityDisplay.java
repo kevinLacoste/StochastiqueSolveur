@@ -124,6 +124,7 @@ public class CityDisplay extends JPanel {
 												 (int)((p.getY()-minY)*(coeffY) + panelHeight/30)));
 				}
 			}
+			this.chemin = null;
 			repaint();
 		}
 		//TODO else

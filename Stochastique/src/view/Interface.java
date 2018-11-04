@@ -411,6 +411,7 @@ public class Interface
 		frame.setContentPane(panelGlobal);
 		
 		frame.setVisible(true);
+		frame.validate();
 	}
 	
 	public static void loadCityModel(ArrayList<Point2D> cityPos)
