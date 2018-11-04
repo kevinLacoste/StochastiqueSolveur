@@ -87,7 +87,6 @@ public class PL {
 	        Map.Entry<Integer, Double> pair = (Map.Entry<Integer, Double>)it.next();
 	        if((Integer)pair.getKey() < 0 || (Integer)pair.getKey() >= vectSolDimension) 
 	        {
-	        	//TODO Exception
 	        	return;
 	        }
 	    }
@@ -134,33 +133,33 @@ public class PL {
 	{
 		if(i >= 0 && this.fctObj.size() > i)
 			return this.fctObj.get(i);
-		else return 0; //TODO Exception
+		else return 0;
 	}
 	
 	public HashMap<Integer, Double> getContrainte(int i)
 	{
 		if(i >= 0 && this.nbContraintes > i)
 			return new HashMap<Integer, Double>(this.matContraintes.get(i));
-		else return null; //TODO Exception
+		else return null;
 	}
 	
 	public double getSCValue(int i)
 	{
 		if(i >= 0 && this.nbContraintes > i)
 			return this.secondMembre.get(i);
-		else return 0; //TODO Exception
+		else return 0;
 	}
 	
 	public inequalitySign getInequalityValue(int i)
 	{
 		if(i >= 0 && this.nbContraintes > i)
 			return this.inequalitySigns.get(i);
-		else return null; //TODO Exception
+		else return null;
 	}
 	
 	void setSolution(ArrayList<Double> solution)
 	{
-		this.vectSolution = new ArrayList<Double>(solution); //TODO A Ameliorer
+		this.vectSolution = solution;
 	}
 	
 	public ArrayList<Double> getSolution()

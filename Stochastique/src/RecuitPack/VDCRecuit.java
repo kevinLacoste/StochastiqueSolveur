@@ -1,5 +1,6 @@
 package RecuitPack;
 
+import Controller.Manager;
 import Model.Modele;
 
 public class VDCRecuit {
@@ -9,11 +10,16 @@ public class VDCRecuit {
 	private double meilleurCout;
 	private RecuitSimule recuitSimule;
 	private boolean isInit;
+	private Manager manager;
 	
 	public VDCRecuit()
 	{
 		isInit = false;
 		meilleurCout = -1;
+	}
+	
+	public void setManager(Manager m) {
+		this.manager = m;
 	}
 	
 	public void initModele(Modele m)
@@ -22,6 +28,8 @@ public class VDCRecuit {
 		//Par défaut le recuit déterminste, pour le moment
 		//this.recuitSimule = new RecuitStochastique(m,nbV,nbV*nbV,100);
 		this.recuitSimule = new RecuitDeterministe(m,nbV,nbV*nbV);
+		RecuitDeterministe rd = (RecuitDeterministe)recuitSimule;
+		rd.setManager(this.manager);
 		isInit = true;
 	}
 	
@@ -43,7 +51,7 @@ public class VDCRecuit {
 		if(isInit)
 		{
 			recuitSimule.initTemperature(stocha);
-			recuitSimule.optimize();
+			recuitSimule.optimize(stocha);
 			updateChemin();
 			meilleurCout = recuitSimule.coutTotal();
 		}

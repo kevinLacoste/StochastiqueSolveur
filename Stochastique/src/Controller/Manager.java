@@ -21,6 +21,7 @@ public class Manager {
 		this.parser = new Parser();
 		this.vdcSolv = new VDCSolveur();
 		this.vdcRecuit = new VDCRecuit();
+		vdcRecuit.setManager(this);
 		this.modeleLoaded = null;
 	}
 	
@@ -37,8 +38,12 @@ public class Manager {
 				vdcRecuit.initModele(modeleLoaded);
 				Interface.setRecuitDeterCoutFinal(-1.d);
 				Interface.setRecuitStochaCoutFinal(-1.d);
+				Interface.setRecuitDeterCurrent(-1.d);
+				Interface.setRecuitStochaCurrent(-1.d);
 				Interface.setRecuitDeterTimeElapsed(-1.d);
 				Interface.setRecuitStochaTimeElapsed(-1.d);
+				Interface.setRecuitDeterTemp(-1.d);
+				Interface.setRecuitStochaTemp(-1.d);
 				Interface.setSolvDeterOptimumCost(-1.d);
 				Interface.setSolvStochaOptimumCost(-1.d);
 				Interface.setSolvDeterTimeElapsed(-1.d);
@@ -80,7 +85,7 @@ public class Manager {
 		else throw new NotInitalizedException("Aucun modele n'a ete initialise");
 	}
 	
-	public ArrayList<Integer> optimizeRecuitDeter() throws NotInitalizedException { //Renvoyer quoi ?
+	public ArrayList<Integer> optimizeRecuitDeter() throws NotInitalizedException {
 		if(modeleLoaded != null) {
 			long start = System.currentTimeMillis();
 			vdcRecuit.run(false);
@@ -98,12 +103,12 @@ public class Manager {
 		else throw new NotInitalizedException("Aucun modele n'a ete initialise");
 	}
 	
-	public ArrayList<Integer> optimizeRecuitStocha() throws NotInitalizedException { //Renvoyer quoi ?
+	public ArrayList<Integer> optimizeRecuitStocha() throws NotInitalizedException {
 		if(modeleLoaded != null) {
 			long start = System.currentTimeMillis();
 			vdcRecuit.run(true);
-			Interface.setRecuitDeterTimeElapsed((double)(System.currentTimeMillis() - start)/1000.d);
-			Interface.setRecuitDeterCoutFinal(vdcRecuit.getMeilleurCout());
+			Interface.setRecuitStochaTimeElapsed((double)(System.currentTimeMillis() - start)/1000.d);
+			Interface.setRecuitStochaCoutFinal(vdcRecuit.getMeilleurCout());
 			int chemin[] = vdcRecuit.getChemin();
 			ArrayList<Integer> toReturn = new ArrayList<Integer>();
 			for(int ville : chemin) {
@@ -135,5 +140,21 @@ public class Manager {
 		
 		System.out.println(toReturn.toString());
 		return toReturn;
+	}
+	
+	public void setRecuitDeterTemp (double temperature) {
+		Interface.setRecuitDeterTemp(temperature);
+	}
+	
+	public void setRecuitStochaTemp (double temperature) {
+		Interface.setRecuitStochaTemp(temperature);
+	}
+	
+	public void setRecuitDeterCurrent (double coutActuel) {
+		Interface.setRecuitDeterCurrent(coutActuel);
+	}
+	
+	public void setRecuitStochaCurrent (double coutActuel) {
+		Interface.setRecuitStochaCurrent(coutActuel);
 	}
 }

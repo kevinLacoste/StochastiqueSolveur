@@ -86,12 +86,12 @@ public class Interface
 	private static JTextField solvTimeElapsedStocha;
 	private static JPanel recuitTestDeter;
 	private static JTextField recuitTempDeter;
-	private static JTextField recuitCoutInitDeter;
+	private static JTextField recuitCoutCurrentDeter;
 	private static JTextField recuitCoutFinalDeter;
 	private static JTextField recuitTimeElapsedDeter;
 	private static JPanel recuitTestStocha;
 	private static JTextField recuitTempStocha;
-	private static JTextField recuitCoutInitStocha;
+	private static JTextField recuitCoutCurrentStocha;
 	private static JTextField recuitCoutFinalStocha;
 	private static JTextField recuitTimeElapsedStocha;
 	private static Manager manager;
@@ -442,10 +442,10 @@ public class Interface
 		recuitTempDeter.setMinimumSize(new Dimension(350, 50));
 		recuitTempDeter.setMaximumSize(new Dimension(350, 50));
 		
-		recuitCoutInitDeter = new JTextField("  Cout initial : ");
-		recuitCoutInitDeter.setEditable(false);
-		recuitCoutInitDeter.setMinimumSize(new Dimension(350, 50));
-		recuitCoutInitDeter.setMaximumSize(new Dimension(350, 50));
+		recuitCoutCurrentDeter = new JTextField("  Meilleur Cout actuel : ");
+		recuitCoutCurrentDeter.setEditable(false);
+		recuitCoutCurrentDeter.setMinimumSize(new Dimension(350, 50));
+		recuitCoutCurrentDeter.setMaximumSize(new Dimension(350, 50));
 		
 		recuitCoutFinalDeter = new JTextField("  Cout final : ");
 		recuitCoutFinalDeter.setEditable(false);
@@ -458,7 +458,7 @@ public class Interface
 		recuitTimeElapsedDeter.setMaximumSize(new Dimension(350, 50));
 		
 		recuitTestDeter.add(recuitTempDeter);
-		recuitTestDeter.add(recuitCoutInitDeter);
+		recuitTestDeter.add(recuitCoutCurrentDeter);
 		recuitTestDeter.add(recuitCoutFinalDeter);
 		recuitTestDeter.add(recuitTimeElapsedDeter);
 		
@@ -475,10 +475,10 @@ public class Interface
 		recuitTempStocha.setMinimumSize(new Dimension(350, 50));
 		recuitTempStocha.setMaximumSize(new Dimension(350, 50));
 		
-		recuitCoutInitStocha = new JTextField("  Cout initial : ");
-		recuitCoutInitStocha.setEditable(false);
-		recuitCoutInitStocha.setMinimumSize(new Dimension(350, 50));
-		recuitCoutInitStocha.setMaximumSize(new Dimension(350, 50));
+		recuitCoutCurrentStocha = new JTextField("  Meilleur Cout actuel : ");
+		recuitCoutCurrentStocha.setEditable(false);
+		recuitCoutCurrentStocha.setMinimumSize(new Dimension(350, 50));
+		recuitCoutCurrentStocha.setMaximumSize(new Dimension(350, 50));
 		
 		recuitCoutFinalStocha = new JTextField("  Cout final : ");
 		recuitCoutFinalStocha.setEditable(false);
@@ -491,7 +491,7 @@ public class Interface
 		recuitTimeElapsedStocha.setMaximumSize(new Dimension(350, 50));
 		
 		recuitTestStocha.add(recuitTempStocha);
-		recuitTestStocha.add(recuitCoutInitStocha);
+		recuitTestStocha.add(recuitCoutCurrentStocha);
 		recuitTestStocha.add(recuitCoutFinalStocha);
 		recuitTestStocha.add(recuitTimeElapsedStocha);
 		
@@ -595,6 +595,22 @@ public class Interface
 	
 	public static void setRecuitStochaCoutFinal(double coutFinal) {
 		recuitCoutFinalStocha.setText("  Cout final : " + (coutFinal == -1.d ? "" : Double.toString(coutFinal)));
+	}
+	
+	public static void setRecuitDeterTemp(double temperature) {
+		recuitTempDeter.setText("  Temperature : " + (temperature == -1.d ? "" : Double.toString(temperature)));
+	}
+	
+	public static void setRecuitStochaTemp(double temperature) {
+		recuitTempStocha.setText("  Temperature : " + (temperature == -1.d ? "" : Double.toString(temperature)));
+	}
+	
+	public static void setRecuitDeterCurrent(double coutActuel) {
+		recuitCoutCurrentDeter.setText("  Meilleur Cout actuel : " + (coutActuel == -1.d ? "" : Double.toString(coutActuel)));
+	}
+	
+	public static void setRecuitStochaCurrent(double coutActuel) {
+		recuitCoutCurrentStocha.setText("  Meilleur Cout actuel : " + (coutActuel == -1.d ? "" : Double.toString(coutActuel)));
 	}
 		
 	public static void main(String[] args) {

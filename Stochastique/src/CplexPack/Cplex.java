@@ -74,12 +74,12 @@ public class Cplex extends Solveur
 			
 			//Probleme a valeurs entieres
 			else if(probleme.getDataType() == dataType.integer) {
-				x = modele.intVarArray(probleme.getVectSolDimension(), 0, Integer.MAX_VALUE);
+				x = modele.intVarArray(probleme.getVectSolDimension(), Integer.MIN_VALUE, Integer.MAX_VALUE);
 			}
 			
 			//Probleme a valeurs reelles
 			else if(probleme.getDataType() == dataType.longFloat) {
-				x = modele.numVarArray(probleme.getVectSolDimension(), 0, Double.MAX_VALUE);
+				x = modele.numVarArray(probleme.getVectSolDimension(), Double.MIN_NORMAL, Double.MAX_VALUE);
 			}
 			
 			// **** Etablissement de la fonction objectif **** //

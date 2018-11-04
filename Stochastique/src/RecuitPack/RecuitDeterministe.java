@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import org.apache.commons.math3.distribution.NormalDistribution;
 
+import Controller.Manager;
 import Model.Modele;
 
 public class RecuitDeterministe extends RecuitSimule {
@@ -13,6 +14,7 @@ public class RecuitDeterministe extends RecuitSimule {
 	private int nbV;
 	private int indice1;
 	private int indice2;
+	private Manager manager;
 	
 	RecuitDeterministe(Modele m,int nbV,int nbIt)
 	{
@@ -24,6 +26,10 @@ public class RecuitDeterministe extends RecuitSimule {
 		this.chemin = new int[nbV+1];
 		//initCheminOrdre();
 		initCheminDist();
+	}
+	
+	public void setManager(Manager m) {
+		this.manager = m;
 	}
 	
 	private void initCheminOrdre()//Ordre croissant
@@ -167,10 +173,14 @@ public class RecuitDeterministe extends RecuitSimule {
 			}
 		}//while (tauxAcceptation < tauxAcceptable)
 		System.out.println("Temperature initialisee a " + temperature);
+		if(manager != null) {
+			if(!alea) manager.setRecuitDeterTemp(temperature);
+			else manager.setRecuitStochaTemp(temperature);
+		}
 	}
 
 	@Override
-	public double optimize()
+	public double optimize(boolean stocha)
 	{
 		int nbAcceptations;
 		boolean mvtPossible;
@@ -182,6 +192,7 @@ public class RecuitDeterministe extends RecuitSimule {
 		tauxAcceptationMin = 0.001;//A changer peut etre
 		tauxAcceptation = 1;
 		meilleurCout = coutTotal();
+		manager.setRecuitDeterCurrent(meilleurCout);
 		
 		coutActuel = meilleurCout;
 		
@@ -206,8 +217,11 @@ public class RecuitDeterministe extends RecuitSimule {
 				delta = coutApres - coutActuel;
 				if (delta < 0)
 				{
+					if(!stocha)manager.setRecuitDeterCurrent(coutApres);
+					else manager.setRecuitStochaCurrent(coutApres);
 					nbAcceptations++;
-					if (coutApres < meilleurCout /*CoutTotal < meilleurCout*/)
+					coutActuel = coutApres;
+					if (coutActuel < meilleurCout /*CoutTotal < meilleurCout*/)
 					{
 						meilleurCout = coutApres;
 					}
@@ -217,6 +231,9 @@ public class RecuitDeterministe extends RecuitSimule {
 					proba = randProba();
 					if (proba <= Math.exp(-delta/temperature))
 					{
+						coutActuel = coutApres;
+						if(!stocha) manager.setRecuitDeterCurrent(coutActuel);
+						else manager.setRecuitStochaCurrent(coutActuel);
 						nbAcceptations++;
 					}
 					else 
@@ -230,6 +247,10 @@ public class RecuitDeterministe extends RecuitSimule {
 			tauxAcceptation = (double)nbAcceptations/(double)nbIterations;
 			System.out.println("Taux acceptation : " + tauxAcceptation + ", solution = " + meilleurCout);
 			temperature *= coeffDecroissance;
+			if(manager != null) {
+				if(!stocha)manager.setRecuitDeterTemp(temperature);
+				else manager.setRecuitStochaTemp(temperature);
+			}
 			
 		}//while (tauxAcceptation < tauxAcceptable)
 		System.out.println("Temperature finale: " + temperature);
@@ -299,7 +320,7 @@ public class RecuitDeterministe extends RecuitSimule {
 	{
 		for (int i = 0;i < this.nbV;i++)
 		{
-			System.out.println("Avant : " + this.modele.getCoutArc(i,0));
+			//System.out.println("Avant : " + this.modele.getCoutArc(i,0));
 			for (int j = 0;j < this.nbV;j++)
 			{
 				if (i != j && this.modele.getVarianceArc(i,j) > 0)
@@ -308,7 +329,7 @@ public class RecuitDeterministe extends RecuitSimule {
 					this.modele.setCoutArc(i,j,n.sample());
 				}
 			}
-			System.out.println("Apres : " + this.modele.getCoutArc(i,0));
+			//System.out.println("Apres : " + this.modele.getCoutArc(i,0));
 
 		}
 	}

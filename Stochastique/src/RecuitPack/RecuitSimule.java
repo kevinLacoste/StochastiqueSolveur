@@ -10,7 +10,7 @@ public abstract class RecuitSimule {
 	protected double tauxAcceptation;
 	protected double tauxAcceptationMin;
 
-	abstract public double optimize();
+	abstract public double optimize(boolean stocha);
 	abstract public boolean mvtPossible();
 	abstract public void selectMvt();
 	abstract public void refuseMvt();
