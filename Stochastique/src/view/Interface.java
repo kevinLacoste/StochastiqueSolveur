@@ -19,6 +19,7 @@ import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.GroupLayout;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
@@ -69,6 +70,7 @@ public class Interface
 	private static JLabel labelData;
 	private static JLabel labelSubData1;
 	private static JLabel labelSubData2;
+	private static JCheckBox systemOutputCheckBox;
 	private static JPanel systemOutputPanel;
 	private static JLabel systemOutputLabel;
 	private static JScrollPane systemOutput;
@@ -76,6 +78,7 @@ public class Interface
 	private static JTextArea tamponResol;
 	private static JTextArea tamponData;
 	private static JTextArea tamponAlpha;
+	private static JTextArea solvResult;
 	private static JTextArea test;
 	private static Manager manager;
 	private static solveur slv;
@@ -143,9 +146,13 @@ public class Interface
 				JComboBox<String> js = (JComboBox<String>)e.getSource();
 				if(js.getSelectedIndex() == 0) {
 					slv = solveur.solvLin;
+					test.setVisible(false);
+					solvResult.setVisible(true);
 				}
 				else {
 					slv = solveur.recuit;
+					test.setVisible(true);
+					solvResult.setVisible(false);
 				}
 			}
 		});
@@ -275,11 +282,28 @@ public class Interface
 			}
 		});
 		
+		systemOutputCheckBox = new JCheckBox("Afficher le flux de sortie console");
+		systemOutputCheckBox.setPreferredSize(new Dimension(350, 40));
+		systemOutputCheckBox.setMinimumSize(new Dimension(350, 40));
+		systemOutputCheckBox.setBackground(Color.lightGray);
+		systemOutputCheckBox.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				JCheckBox jcb = (JCheckBox)e.getSource();
+				if(jcb.isSelected()) {
+					systemOutputPanel.setVisible(true);
+				}
+				else systemOutputPanel.setVisible(false);
+			}
+		});
+		
 		systemOutputPanel = new JPanel();
 		BoxLayout sysoLayout = new BoxLayout(systemOutputPanel, BoxLayout.PAGE_AXIS);
 		systemOutputPanel.setLayout(sysoLayout);
 		systemOutputPanel.setPreferredSize(new Dimension(350, 100));
 		systemOutputPanel.setMinimumSize(new Dimension(350, 100));
+		systemOutputPanel.setVisible(false);
 		
 		systemOutputLabel = new JLabel("Console : ");
 		systemOutputLabel.setPreferredSize(new Dimension(100, 40));
@@ -308,19 +332,27 @@ public class Interface
 		tamponData.setMaximumSize(new Dimension(300, 30));
 		tamponData.setBackground(Color.lightGray);
 		
+		solvResult = new JTextArea("\n  Longueur du chemin optimal : ");
+		solvResult.setEditable(false);
+		solvResult.setMinimumSize(new Dimension(350, 50));
+		solvResult.setMaximumSize(new Dimension(350, 50));
+		solvResult.setBorder(BorderFactory.createLineBorder(Color.gray));
+		solvResult.setVisible(true);
+		
 		test = new JTextArea();
 		test.setEditable(false);
 		test.setMinimumSize(new Dimension(310 ,160));
 		test.setMaximumSize(new Dimension(310 ,160));
-		test.setBackground(Color.lightGray);
+		test.setBorder(BorderFactory.createLineBorder(Color.gray));
 		test.append("\n");
-		test.append("Temperature : " + "\n");
+		test.append("  Temperature : " + "\n");
 		test.append("\n");
-		test.append("Cout total initial : " + "\n");
+		test.append("  Cout total initial : " + "\n");
 		test.append("\n");
-		test.append("Cout total final : " + "\n");
+		test.append("  Cout total final : " + "\n");
 		test.append("\n");
-		test.append("Temps de resolution : " + "\n");
+		test.append("  Temps de resolution : " + "\n");
+		test.setVisible(false);
 		
 		panelLeft = new JPanel();
 		panelLeft.setBackground(Color.lightGray);
@@ -341,7 +373,9 @@ public class Interface
 				   	.addComponent(labelSubData2)
 					.addComponent(tamponData)
 				   	.addComponent(buttonResol)
+				   	.addComponent(solvResult)
 				   	.addComponent(test)
+				   	.addComponent(systemOutputCheckBox)
 				   	.addComponent(systemOutputPanel))
 		);
 		
@@ -358,7 +392,9 @@ public class Interface
 					  .addComponent(labelSubData2)
 					  .addComponent(tamponData)
 				      .addComponent(buttonResol)
+				      .addComponent(solvResult)
 					  .addComponent(test)
+					  .addComponent(systemOutputCheckBox)
 					  .addComponent(systemOutputPanel)
 		);
 		
@@ -381,6 +417,10 @@ public class Interface
 	{
 		systemOutputText.setText("");
 		panelRight.loadCityModel(cityPos);
+	}
+	
+	public static void setSolvOptimumCost (double optimalValue) {
+		solvResult.setText("\n  Longueur du chemin optimal : " + (optimalValue == -1.d ? "" : Double.toString(optimalValue)));
 	}
 		
 	public static void main(String[] args) {

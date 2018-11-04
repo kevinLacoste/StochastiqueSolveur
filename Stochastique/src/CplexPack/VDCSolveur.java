@@ -442,4 +442,18 @@ public class VDCSolveur {
 		
 		this.problemeDeter.setSolution(solution);
 	}
+	
+	public double getOptimalDeter() {
+		if(isOptimisedDeter) {
+			return problemeDeter.getFctValue();
+		}
+		else return -1;
+	}
+	
+	public double getOptimalStocha() {
+		if(isOptimisedStocha) {
+			return problemeStocha.getFctValue();
+		}
+		else return -1;
+	}
 }

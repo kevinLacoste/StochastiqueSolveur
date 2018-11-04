@@ -45,9 +45,11 @@ public class Manager {
 	public ArrayList<Integer> optimizeSolvDeter() throws NotInitalizedException, NoSolutionException {
 		if(modeleLoaded != null) {
 			ArrayList<Double> solution = vdcSolv.optimizeDeter();
-			
 			if(solution == null) throw new NoSolutionException("Aucune solution n'a ete trouvee");
-			else return createChemin(solution);
+			else {
+				Interface.setSolvOptimumCost(vdcSolv.getOptimalDeter());
+				return createChemin(solution);
+			}
 		}
 		else throw new NotInitalizedException("Aucun modele n'a ete initialise");
 	}
@@ -57,7 +59,10 @@ public class Manager {
 			ArrayList<Double> solution = vdcSolv.optimizeStocha(alpha);
 			
 			if(solution == null) throw new NoSolutionException("Aucune solution n'a ete trouvee");
-			else return createChemin(solution);
+			else  {
+				Interface.setSolvOptimumCost(vdcSolv.getOptimalStocha());
+				return createChemin(solution);
+			}
 		}
 		else throw new NotInitalizedException("Aucun modele n'a ete initialise");
 	}
