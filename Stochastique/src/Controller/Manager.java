@@ -35,6 +35,14 @@ public class Manager {
 				Interface.loadCityModel(modeleLoaded.getPositionsVilles());
 				vdcSolv.initModele(modeleLoaded);
 				vdcRecuit.initModele(modeleLoaded);
+				Interface.setRecuitDeterCoutFinal(-1.d);
+				Interface.setRecuitStochaCoutFinal(-1.d);
+				Interface.setRecuitDeterTimeElapsed(-1.d);
+				Interface.setRecuitStochaTimeElapsed(-1.d);
+				Interface.setSolvDeterOptimumCost(-1.d);
+				Interface.setSolvStochaOptimumCost(-1.d);
+				Interface.setSolvDeterTimeElapsed(-1.d);
+				Interface.setSolvStochaTimeElapsed(-1.d);
 			}
 		}
 		catch(FileNotFoundException e) {
@@ -49,8 +57,8 @@ public class Manager {
 			
 			if(solution == null) throw new NoSolutionException("Aucune solution n'a ete trouvee");
 			else {
-				Interface.setSolvOptimumCost(vdcSolv.getOptimalDeter());
-				Interface.setSolvTimeElapsed((double)(System.currentTimeMillis() - start)/1000.d);
+				Interface.setSolvDeterOptimumCost(vdcSolv.getOptimalDeter());
+				Interface.setSolvDeterTimeElapsed((double)(System.currentTimeMillis() - start)/1000.d);
 				return createChemin(solution);
 			}
 		}
@@ -64,8 +72,8 @@ public class Manager {
 			
 			if(solution == null) throw new NoSolutionException("Aucune solution n'a ete trouvee");
 			else  {
-				Interface.setSolvOptimumCost(vdcSolv.getOptimalStocha());
-				Interface.setSolvTimeElapsed((double)(System.currentTimeMillis() - start)/1000.d);
+				Interface.setSolvStochaOptimumCost(vdcSolv.getOptimalStocha());
+				Interface.setSolvStochaTimeElapsed((double)(System.currentTimeMillis() - start)/1000.d);
 				return createChemin(solution);
 			}
 		}
@@ -76,8 +84,8 @@ public class Manager {
 		if(modeleLoaded != null) {
 			long start = System.currentTimeMillis();
 			vdcRecuit.run();
-			Interface.setRecuitTimeElapsed((double)(System.currentTimeMillis() - start)/1000.d);
-			Interface.setRecuitCoutFinal(vdcRecuit.getMeilleurCout());
+			Interface.setRecuitDeterTimeElapsed((double)(System.currentTimeMillis() - start)/1000.d);
+			Interface.setRecuitDeterCoutFinal(vdcRecuit.getMeilleurCout());
 			int chemin[] = vdcRecuit.getChemin();
 			ArrayList<Integer> toReturn = new ArrayList<Integer>();
 			for(int ville : chemin) {

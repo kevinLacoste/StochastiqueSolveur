@@ -78,14 +78,22 @@ public class Interface
 	private static JTextArea tamponResol;
 	private static JTextArea tamponData;
 	private static JTextArea tamponAlpha;
-	private static JPanel solvTest;
-	private static JTextField solvResult;
-	private static JTextField solvTimeElapsed;
-	private static JPanel recuitTest;
-	private static JTextField recuitTemp;
-	private static JTextField recuitCoutInit;
-	private static JTextField recuitCoutFinal;
-	private static JTextField recuitTimeElapsed;
+	private static JPanel solvTestDeter;
+	private static JTextField solvResultDeter;
+	private static JTextField solvTimeElapsedDeter;
+	private static JPanel solvTestStocha;
+	private static JTextField solvResultStocha;
+	private static JTextField solvTimeElapsedStocha;
+	private static JPanel recuitTestDeter;
+	private static JTextField recuitTempDeter;
+	private static JTextField recuitCoutInitDeter;
+	private static JTextField recuitCoutFinalDeter;
+	private static JTextField recuitTimeElapsedDeter;
+	private static JPanel recuitTestStocha;
+	private static JTextField recuitTempStocha;
+	private static JTextField recuitCoutInitStocha;
+	private static JTextField recuitCoutFinalStocha;
+	private static JTextField recuitTimeElapsedStocha;
 	private static Manager manager;
 	private static solveur slv;
 	private static deterStocha dt;
@@ -132,9 +140,25 @@ public class Interface
 				if(js.getSelectedIndex() == 0) {
 					dt = deterStocha.deterministe;
 					alphaPanel.setVisible(false);
+					if(slv == solveur.solvLin) {
+						solvTestStocha.setVisible(false);
+						solvTestDeter.setVisible(true);
+					}
+					else {
+						recuitTestStocha.setVisible(false);
+						recuitTestDeter.setVisible(true);
+					}
 				}
 				else {
 					dt = deterStocha.stochastique;
+					if(slv == solveur.solvLin) {
+						solvTestDeter.setVisible(false);
+						solvTestStocha.setVisible(true);
+					}
+					else {
+						recuitTestDeter.setVisible(false);
+						recuitTestStocha.setVisible(true);
+					}
 					alphaPanel.setVisible(true);
 				}
 			}
@@ -152,13 +176,25 @@ public class Interface
 				JComboBox<String> js = (JComboBox<String>)e.getSource();
 				if(js.getSelectedIndex() == 0) {
 					slv = solveur.solvLin;
-					recuitTest.setVisible(false);
-					solvTest.setVisible(true);
+					if(dt == deterStocha.deterministe) {
+						solvTestDeter.setVisible(true);
+						recuitTestDeter.setVisible(false);
+					}
+					else {
+						solvTestStocha.setVisible(true);
+						recuitTestStocha.setVisible(false);
+					}
 				}
 				else {
 					slv = solveur.recuit;
-					recuitTest.setVisible(true);
-					solvTest.setVisible(false);
+					if(dt == deterStocha.deterministe) {
+						solvTestDeter.setVisible(false);
+						recuitTestDeter.setVisible(true);
+					}
+					else {
+						solvTestStocha.setVisible(false);
+						recuitTestStocha.setVisible(true);
+					}
 				}
 			}
 		});
@@ -349,55 +385,113 @@ public class Interface
 		tamponData.setMaximumSize(new Dimension(300, 30));
 		tamponData.setBackground(Color.lightGray);
 		
-		solvTest = new JPanel();
-		BoxLayout solvTestLayout = new BoxLayout(solvTest, BoxLayout.PAGE_AXIS);
-		solvTest.setLayout(solvTestLayout);
-		solvTest.setVisible(true);
-		solvTest.setBorder(BorderFactory.createLineBorder(Color.gray));
+		//Solveur deterministe
 		
-		solvResult = new JTextField("  Longueur du chemin optimal : ");
-		solvResult.setEditable(false);
-		solvResult.setMinimumSize(new Dimension(350, 50));
-		solvResult.setMaximumSize(new Dimension(350, 50));
+		solvTestDeter = new JPanel();
+		BoxLayout solvTestLayoutDeter = new BoxLayout(solvTestDeter, BoxLayout.PAGE_AXIS);
+		solvTestDeter.setLayout(solvTestLayoutDeter);
+		solvTestDeter.setVisible(true);
+		solvTestDeter.setBorder(BorderFactory.createLineBorder(Color.gray));
 		
-		solvTimeElapsed = new JTextField("  Temps de calcul total : ");
-		solvTimeElapsed.setEditable(false);
-		solvTimeElapsed.setMinimumSize(new Dimension(350, 50));
-		solvTimeElapsed.setMaximumSize(new Dimension(350, 50));
+		solvResultDeter = new JTextField("  Longueur du chemin optimal : ");
+		solvResultDeter.setEditable(false);
+		solvResultDeter.setMinimumSize(new Dimension(350, 50));
+		solvResultDeter.setMaximumSize(new Dimension(350, 50));
 		
-		solvTest.add(solvResult);
-		solvTest.add(solvTimeElapsed);
+		solvTimeElapsedDeter = new JTextField("  Temps de calcul total : ");
+		solvTimeElapsedDeter.setEditable(false);
+		solvTimeElapsedDeter.setMinimumSize(new Dimension(350, 50));
+		solvTimeElapsedDeter.setMaximumSize(new Dimension(350, 50));
 		
-		recuitTest = new JPanel();
-		BoxLayout recuitTestLayout = new BoxLayout(recuitTest, BoxLayout.PAGE_AXIS);
-		recuitTest.setLayout(recuitTestLayout);
-		recuitTest.setBorder(BorderFactory.createLineBorder(Color.gray));
-		recuitTest.setVisible(false);
+		solvTestDeter.add(solvResultDeter);
+		solvTestDeter.add(solvTimeElapsedDeter);
 		
-		recuitTemp = new JTextField("  Temperature : ");
-		recuitTemp.setEditable(false);
-		recuitTemp.setMinimumSize(new Dimension(350, 50));
-		recuitTemp.setMaximumSize(new Dimension(350, 50));
+		//Solveur stochastique
 		
-		recuitCoutInit = new JTextField("  Cout initial : ");
-		recuitCoutInit.setEditable(false);
-		recuitCoutInit.setMinimumSize(new Dimension(350, 50));
-		recuitCoutInit.setMaximumSize(new Dimension(350, 50));
+		solvTestStocha = new JPanel();
+		BoxLayout solvTestLayoutStocha = new BoxLayout(solvTestStocha, BoxLayout.PAGE_AXIS);
+		solvTestStocha.setLayout(solvTestLayoutStocha);
+		solvTestStocha.setVisible(false);
+		solvTestStocha.setBorder(BorderFactory.createLineBorder(Color.gray));
 		
-		recuitCoutFinal = new JTextField("  Cout final : ");
-		recuitCoutFinal.setEditable(false);
-		recuitCoutFinal.setMinimumSize(new Dimension(350, 50));
-		recuitCoutFinal.setMaximumSize(new Dimension(350, 50));
+		solvResultStocha = new JTextField("  Longueur du chemin optimal : ");
+		solvResultStocha.setEditable(false);
+		solvResultStocha.setMinimumSize(new Dimension(350, 50));
+		solvResultStocha.setMaximumSize(new Dimension(350, 50));
 		
-		recuitTimeElapsed = new JTextField("  Temps de calcul total : ");
-		recuitTimeElapsed.setEditable(false);
-		recuitTimeElapsed.setMinimumSize(new Dimension(350, 50));
-		recuitTimeElapsed.setMaximumSize(new Dimension(350, 50));
+		solvTimeElapsedStocha = new JTextField("  Temps de calcul total : ");
+		solvTimeElapsedStocha.setEditable(false);
+		solvTimeElapsedStocha.setMinimumSize(new Dimension(350, 50));
+		solvTimeElapsedStocha.setMaximumSize(new Dimension(350, 50));
 		
-		recuitTest.add(recuitTemp);
-		recuitTest.add(recuitCoutInit);
-		recuitTest.add(recuitCoutFinal);
-		recuitTest.add(recuitTimeElapsed);
+		solvTestStocha.add(solvResultStocha);
+		solvTestStocha.add(solvTimeElapsedStocha);
+		
+		//Recuit deterministe
+		
+		recuitTestDeter = new JPanel();
+		BoxLayout recuitTestLayoutDeter = new BoxLayout(recuitTestDeter, BoxLayout.PAGE_AXIS);
+		recuitTestDeter.setLayout(recuitTestLayoutDeter);
+		recuitTestDeter.setBorder(BorderFactory.createLineBorder(Color.gray));
+		recuitTestDeter.setVisible(false);
+		
+		recuitTempDeter = new JTextField("  Temperature : ");
+		recuitTempDeter.setEditable(false);
+		recuitTempDeter.setMinimumSize(new Dimension(350, 50));
+		recuitTempDeter.setMaximumSize(new Dimension(350, 50));
+		
+		recuitCoutInitDeter = new JTextField("  Cout initial : ");
+		recuitCoutInitDeter.setEditable(false);
+		recuitCoutInitDeter.setMinimumSize(new Dimension(350, 50));
+		recuitCoutInitDeter.setMaximumSize(new Dimension(350, 50));
+		
+		recuitCoutFinalDeter = new JTextField("  Cout final : ");
+		recuitCoutFinalDeter.setEditable(false);
+		recuitCoutFinalDeter.setMinimumSize(new Dimension(350, 50));
+		recuitCoutFinalDeter.setMaximumSize(new Dimension(350, 50));
+		
+		recuitTimeElapsedDeter = new JTextField("  Temps de calcul total : ");
+		recuitTimeElapsedDeter.setEditable(false);
+		recuitTimeElapsedDeter.setMinimumSize(new Dimension(350, 50));
+		recuitTimeElapsedDeter.setMaximumSize(new Dimension(350, 50));
+		
+		recuitTestDeter.add(recuitTempDeter);
+		recuitTestDeter.add(recuitCoutInitDeter);
+		recuitTestDeter.add(recuitCoutFinalDeter);
+		recuitTestDeter.add(recuitTimeElapsedDeter);
+		
+		//Recuit stochastique
+		
+		recuitTestStocha = new JPanel();
+		BoxLayout recuitTestLayoutStocha = new BoxLayout(recuitTestStocha, BoxLayout.PAGE_AXIS);
+		recuitTestStocha.setLayout(recuitTestLayoutStocha);
+		recuitTestStocha.setBorder(BorderFactory.createLineBorder(Color.gray));
+		recuitTestStocha.setVisible(false);
+		
+		recuitTempStocha = new JTextField("  Temperature : ");
+		recuitTempStocha.setEditable(false);
+		recuitTempStocha.setMinimumSize(new Dimension(350, 50));
+		recuitTempStocha.setMaximumSize(new Dimension(350, 50));
+		
+		recuitCoutInitStocha = new JTextField("  Cout initial : ");
+		recuitCoutInitStocha.setEditable(false);
+		recuitCoutInitStocha.setMinimumSize(new Dimension(350, 50));
+		recuitCoutInitStocha.setMaximumSize(new Dimension(350, 50));
+		
+		recuitCoutFinalStocha = new JTextField("  Cout final : ");
+		recuitCoutFinalStocha.setEditable(false);
+		recuitCoutFinalStocha.setMinimumSize(new Dimension(350, 50));
+		recuitCoutFinalStocha.setMaximumSize(new Dimension(350, 50));
+		
+		recuitTimeElapsedStocha = new JTextField("  Temps de calcul total : ");
+		recuitTimeElapsedStocha.setEditable(false);
+		recuitTimeElapsedStocha.setMinimumSize(new Dimension(350, 50));
+		recuitTimeElapsedStocha.setMaximumSize(new Dimension(350, 50));
+		
+		recuitTestStocha.add(recuitTempStocha);
+		recuitTestStocha.add(recuitCoutInitStocha);
+		recuitTestStocha.add(recuitCoutFinalStocha);
+		recuitTestStocha.add(recuitTimeElapsedStocha);
 		
 		panelLeft = new JPanel();
 		panelLeft.setBackground(Color.lightGray);
@@ -418,8 +512,10 @@ public class Interface
 				   	.addComponent(labelSubData2)
 					.addComponent(tamponData)
 				   	.addComponent(buttonResol)
-				   	.addComponent(solvTest)
-				   	.addComponent(recuitTest)
+				   	.addComponent(solvTestDeter)
+				   	.addComponent(solvTestStocha)
+				   	.addComponent(recuitTestDeter)
+				   	.addComponent(recuitTestStocha)
 				   	.addComponent(systemOutputCheckBox)
 				   	.addComponent(systemOutputPanel))
 		);
@@ -437,8 +533,10 @@ public class Interface
 					  .addComponent(labelSubData2)
 					  .addComponent(tamponData)
 				      .addComponent(buttonResol)
-				      .addComponent(solvTest)
-					  .addComponent(recuitTest)
+				      .addComponent(solvTestDeter)
+					  .addComponent(solvTestStocha)
+					  .addComponent(recuitTestDeter)
+					  .addComponent(recuitTestStocha)
 					  .addComponent(systemOutputCheckBox)
 					  .addComponent(systemOutputPanel)
 		);
@@ -465,20 +563,36 @@ public class Interface
 		panelRight.loadCityModel(cityPos);
 	}
 	
-	public static void setSolvOptimumCost (double optimalValue) {
-		solvResult.setText("  Longueur du chemin optimal : " + (optimalValue == -1.d ? "" : Double.toString(optimalValue)));
+	public static void setSolvDeterOptimumCost (double optimalValue) {
+		solvResultDeter.setText("  Longueur du chemin optimal : " + (optimalValue == -1.d ? "" : Double.toString(optimalValue)));
 	}
 	
-	public static void setSolvTimeElapsed(double timeElapsed) {
-		solvTimeElapsed.setText("  Temps de calcul total : " + timeElapsed + " sec");
+	public static void setSolvStochaOptimumCost (double optimalValue) {
+		solvResultStocha.setText("  Longueur du chemin optimal : " + (optimalValue == -1.d ? "" : Double.toString(optimalValue)));
 	}
 	
-	public static void setRecuitTimeElapsed(double timeElapsed) {
-		recuitTimeElapsed.setText("  Temps de calcul total : " + timeElapsed + " sec");
+	public static void setSolvDeterTimeElapsed(double timeElapsed) {
+		solvTimeElapsedDeter.setText("  Temps de calcul total : " + (timeElapsed == -1.d ? "" : Double.toString(timeElapsed) + " sec"));
 	}
 	
-	public static void setRecuitCoutFinal(double coutFinal) {
-		recuitCoutFinal.setText("  Cout final : " + coutFinal);
+	public static void setSolvStochaTimeElapsed(double timeElapsed) {
+		solvTimeElapsedStocha.setText("  Temps de calcul total : " + (timeElapsed == -1.d ? "" : Double.toString(timeElapsed) + " sec"));
+	}
+	
+	public static void setRecuitDeterTimeElapsed(double timeElapsed) {
+		recuitTimeElapsedDeter.setText("  Temps de calcul total : " + (timeElapsed == -1.d ? "" : Double.toString(timeElapsed) + " sec"));
+	}
+	
+	public static void setRecuitStochaTimeElapsed(double timeElapsed) {
+		recuitTimeElapsedStocha.setText("  Temps de calcul total : " + (timeElapsed == -1.d ? "" : Double.toString(timeElapsed) + " sec"));
+	}
+	
+	public static void setRecuitDeterCoutFinal(double coutFinal) {
+		recuitCoutFinalDeter.setText("  Cout final : " + (coutFinal == -1.d ? "" : Double.toString(coutFinal)));
+	}
+	
+	public static void setRecuitStochaCoutFinal(double coutFinal) {
+		recuitCoutFinalStocha.setText("  Cout final : " + (coutFinal == -1.d ? "" : Double.toString(coutFinal)));
 	}
 		
 	public static void main(String[] args) {
