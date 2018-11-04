@@ -117,11 +117,9 @@ public class VDCSolveur {
 		this.problemeDeter = new PL(vectSolDimension, dataType.bool, matContraintes, secondMembre, inequalitySigns, fctObj);
 		this.problemeStocha = new PL(vectSolDimension, dataType.bool, matContraintes, secondMembre, inequalitySigns, fctObj);
 		isInit = true;
+		isOptimisedDeter = false;
+		isOptimisedStocha = false;
 	}
-	
-	/*public ArrayList<Integer> getSolutionDeter() {
-		
-	}*/
 	
 	public ArrayList<Double> optimizeDeter() throws NotInitalizedException
 	{
@@ -257,7 +255,6 @@ public class VDCSolveur {
 					{ 
 						for(ArrayList<Integer> tour : sousTours)
 					    {
-							System.out.println(tour.toString());
 							newContrainst = new HashMap<Integer, Double>();
 							for(int i=0; i<nbVilles; i++)
 							{

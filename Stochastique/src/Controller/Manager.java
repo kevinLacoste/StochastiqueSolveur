@@ -44,10 +44,13 @@ public class Manager {
 	
 	public ArrayList<Integer> optimizeSolvDeter() throws NotInitalizedException, NoSolutionException {
 		if(modeleLoaded != null) {
+			long start = System.currentTimeMillis();
 			ArrayList<Double> solution = vdcSolv.optimizeDeter();
+			
 			if(solution == null) throw new NoSolutionException("Aucune solution n'a ete trouvee");
 			else {
 				Interface.setSolvOptimumCost(vdcSolv.getOptimalDeter());
+				Interface.setSolvTimeElapsed((double)(System.currentTimeMillis() - start)/1000.d);
 				return createChemin(solution);
 			}
 		}
@@ -56,11 +59,13 @@ public class Manager {
 	
 	public ArrayList<Integer> optimizeSolvStocha(double alpha) throws NotInitalizedException, NoSolutionException { //Renvoyer quoi ?
 		if(modeleLoaded != null) {
+			long start = System.currentTimeMillis();
 			ArrayList<Double> solution = vdcSolv.optimizeStocha(alpha);
 			
 			if(solution == null) throw new NoSolutionException("Aucune solution n'a ete trouvee");
 			else  {
 				Interface.setSolvOptimumCost(vdcSolv.getOptimalStocha());
+				Interface.setSolvTimeElapsed((double)(System.currentTimeMillis() - start)/1000.d);
 				return createChemin(solution);
 			}
 		}
@@ -69,7 +74,10 @@ public class Manager {
 	
 	public ArrayList<Integer> optimizeRecuitDeter() throws NotInitalizedException { //Renvoyer quoi ?
 		if(modeleLoaded != null) {
+			long start = System.currentTimeMillis();
 			vdcRecuit.run();
+			Interface.setRecuitTimeElapsed((double)(System.currentTimeMillis() - start)/1000.d);
+			Interface.setRecuitCoutFinal(vdcRecuit.getMeilleurCout());
 			int chemin[] = vdcRecuit.getChemin();
 			ArrayList<Integer> toReturn = new ArrayList<Integer>();
 			for(int ville : chemin) {

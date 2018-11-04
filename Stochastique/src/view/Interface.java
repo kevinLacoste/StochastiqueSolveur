@@ -78,8 +78,14 @@ public class Interface
 	private static JTextArea tamponResol;
 	private static JTextArea tamponData;
 	private static JTextArea tamponAlpha;
-	private static JTextArea solvResult;
-	private static JTextArea test;
+	private static JPanel solvTest;
+	private static JTextField solvResult;
+	private static JTextField solvTimeElapsed;
+	private static JPanel recuitTest;
+	private static JTextField recuitTemp;
+	private static JTextField recuitCoutInit;
+	private static JTextField recuitCoutFinal;
+	private static JTextField recuitTimeElapsed;
 	private static Manager manager;
 	private static solveur slv;
 	private static deterStocha dt;
@@ -146,13 +152,13 @@ public class Interface
 				JComboBox<String> js = (JComboBox<String>)e.getSource();
 				if(js.getSelectedIndex() == 0) {
 					slv = solveur.solvLin;
-					test.setVisible(false);
-					solvResult.setVisible(true);
+					recuitTest.setVisible(false);
+					solvTest.setVisible(true);
 				}
 				else {
 					slv = solveur.recuit;
-					test.setVisible(true);
-					solvResult.setVisible(false);
+					recuitTest.setVisible(true);
+					solvTest.setVisible(false);
 				}
 			}
 		});
@@ -343,27 +349,55 @@ public class Interface
 		tamponData.setMaximumSize(new Dimension(300, 30));
 		tamponData.setBackground(Color.lightGray);
 		
-		solvResult = new JTextArea("\n  Longueur du chemin optimal : ");
+		solvTest = new JPanel();
+		BoxLayout solvTestLayout = new BoxLayout(solvTest, BoxLayout.PAGE_AXIS);
+		solvTest.setLayout(solvTestLayout);
+		solvTest.setVisible(true);
+		solvTest.setBorder(BorderFactory.createLineBorder(Color.gray));
+		
+		solvResult = new JTextField("  Longueur du chemin optimal : ");
 		solvResult.setEditable(false);
 		solvResult.setMinimumSize(new Dimension(350, 50));
 		solvResult.setMaximumSize(new Dimension(350, 50));
-		solvResult.setBorder(BorderFactory.createLineBorder(Color.gray));
-		solvResult.setVisible(true);
 		
-		test = new JTextArea();
-		test.setEditable(false);
-		test.setMinimumSize(new Dimension(310 ,160));
-		test.setMaximumSize(new Dimension(310 ,160));
-		test.setBorder(BorderFactory.createLineBorder(Color.gray));
-		test.append("\n");
-		test.append("  Temperature : " + "\n");
-		test.append("\n");
-		test.append("  Cout total initial : " + "\n");
-		test.append("\n");
-		test.append("  Cout total final : " + "\n");
-		test.append("\n");
-		test.append("  Temps de resolution : " + "\n");
-		test.setVisible(false);
+		solvTimeElapsed = new JTextField("  Temps de calcul total : ");
+		solvTimeElapsed.setEditable(false);
+		solvTimeElapsed.setMinimumSize(new Dimension(350, 50));
+		solvTimeElapsed.setMaximumSize(new Dimension(350, 50));
+		
+		solvTest.add(solvResult);
+		solvTest.add(solvTimeElapsed);
+		
+		recuitTest = new JPanel();
+		BoxLayout recuitTestLayout = new BoxLayout(recuitTest, BoxLayout.PAGE_AXIS);
+		recuitTest.setLayout(recuitTestLayout);
+		recuitTest.setBorder(BorderFactory.createLineBorder(Color.gray));
+		recuitTest.setVisible(false);
+		
+		recuitTemp = new JTextField("  Temperature : ");
+		recuitTemp.setEditable(false);
+		recuitTemp.setMinimumSize(new Dimension(350, 50));
+		recuitTemp.setMaximumSize(new Dimension(350, 50));
+		
+		recuitCoutInit = new JTextField("  Cout initial : ");
+		recuitCoutInit.setEditable(false);
+		recuitCoutInit.setMinimumSize(new Dimension(350, 50));
+		recuitCoutInit.setMaximumSize(new Dimension(350, 50));
+		
+		recuitCoutFinal = new JTextField("  Cout final : ");
+		recuitCoutFinal.setEditable(false);
+		recuitCoutFinal.setMinimumSize(new Dimension(350, 50));
+		recuitCoutFinal.setMaximumSize(new Dimension(350, 50));
+		
+		recuitTimeElapsed = new JTextField("  Temps de calcul total : ");
+		recuitTimeElapsed.setEditable(false);
+		recuitTimeElapsed.setMinimumSize(new Dimension(350, 50));
+		recuitTimeElapsed.setMaximumSize(new Dimension(350, 50));
+		
+		recuitTest.add(recuitTemp);
+		recuitTest.add(recuitCoutInit);
+		recuitTest.add(recuitCoutFinal);
+		recuitTest.add(recuitTimeElapsed);
 		
 		panelLeft = new JPanel();
 		panelLeft.setBackground(Color.lightGray);
@@ -384,8 +418,8 @@ public class Interface
 				   	.addComponent(labelSubData2)
 					.addComponent(tamponData)
 				   	.addComponent(buttonResol)
-				   	.addComponent(solvResult)
-				   	.addComponent(test)
+				   	.addComponent(solvTest)
+				   	.addComponent(recuitTest)
 				   	.addComponent(systemOutputCheckBox)
 				   	.addComponent(systemOutputPanel))
 		);
@@ -403,8 +437,8 @@ public class Interface
 					  .addComponent(labelSubData2)
 					  .addComponent(tamponData)
 				      .addComponent(buttonResol)
-				      .addComponent(solvResult)
-					  .addComponent(test)
+				      .addComponent(solvTest)
+					  .addComponent(recuitTest)
 					  .addComponent(systemOutputCheckBox)
 					  .addComponent(systemOutputPanel)
 		);
@@ -432,11 +466,22 @@ public class Interface
 	}
 	
 	public static void setSolvOptimumCost (double optimalValue) {
-		solvResult.setText("\n  Longueur du chemin optimal : " + (optimalValue == -1.d ? "" : Double.toString(optimalValue)));
+		solvResult.setText("  Longueur du chemin optimal : " + (optimalValue == -1.d ? "" : Double.toString(optimalValue)));
+	}
+	
+	public static void setSolvTimeElapsed(double timeElapsed) {
+		solvTimeElapsed.setText("  Temps de calcul total : " + timeElapsed + " sec");
+	}
+	
+	public static void setRecuitTimeElapsed(double timeElapsed) {
+		recuitTimeElapsed.setText("  Temps de calcul total : " + timeElapsed + " sec");
+	}
+	
+	public static void setRecuitCoutFinal(double coutFinal) {
+		recuitCoutFinal.setText("  Cout final : " + coutFinal);
 	}
 		
 	public static void main(String[] args) {
-		// TODO Auto-generated method stub
 		createNewJFrame();
 	}
 
